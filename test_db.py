@@ -21,11 +21,10 @@ DATABASE_URL = "sqlite:///./test.db"
 database = Database(DATABASE_URL)
 
 async def create_user(telegram_id: int, menu_state: str = None):
-    # Проверяем, существует ли пользователь
     existing_user = await get_user(telegram_id)
     if existing_user:
         print(f"Пользователь с telegram_id {telegram_id} уже существует.")
-        return  # Или можно обновить пользователя, если это необходимо
+        return
 
     query = """
     INSERT INTO users (telegram_id, menu_state, user_inf)
@@ -34,7 +33,7 @@ async def create_user(telegram_id: int, menu_state: str = None):
     values = {
         "telegram_id": telegram_id,
         "menu_state": menu_state,
-        "user_inf": json.dumps({'ФИО': None, 'Номер телефона': None})  # Значения по умолчанию
+        "user_inf": json.dumps({'ФИО': None, 'Номер телефона': None})
     }
     await database.execute(query, values)
 
@@ -46,7 +45,6 @@ async def update_user(telegram_id: int, **kwargs):
 
 async def update_user_info(telegram_id: int, menu_state: Optional[str] = None, 
                             user_inf: Optional[dict] = None):
-    """Обновляет информацию о пользователе, исключая None значения."""
     updates = {}
     
     if menu_state is not None:
@@ -62,7 +60,6 @@ async def get_user(telegram_id: int):
     user = await database.fetch_one(query, values={"telegram_id": telegram_id})
     
     if user:
-        # Создаем новый словарь с десериализованными значениями
         user_dict = dict(user)
         user_dict['user_inf'] = json.loads(user_dict['user_inf']) if user_dict['user_inf'] else None
         return user_dict
@@ -70,19 +67,15 @@ async def get_user(telegram_id: int):
 
 async def start_create_table():
     await database.connect()
-    # Создание таблицы, если она не существует
     engine = create_engine(DATABASE_URL)
     Base.metadata.create_all(engine)
     await database.disconnect()
 
-
-async def start_create_table():
+async def get_user_from_db(telegram_id):
     await database.connect()
-    # Создание таблицы, если она не существует
-    engine = create_engine(DATABASE_URL)
-    Base.metadata.create_all(engine)
+    user = await get_user(telegram_id)
     await database.disconnect()
-
+    return user
 
 async def creat_user_in_db(telegram_id):
     await database.connect()
