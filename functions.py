@@ -587,6 +587,8 @@ async def inf_taker(full_information):
         # new_vac['Валюта'] = vac['salary']['currency']
         try:
             valute = vac['salary']['currency']
+            if valute.__eq__('RUR'):
+                valute = 'руб'
             value_m = vac['salary']['from']
             new_vac['Оплата ОТ'] = f'От {value_m} {valute}\n'
             
