@@ -21,9 +21,6 @@ from constants import *
 
 from test_db import User_tg, creat_user_in_db, get_user_from_db, update_user_in_db, start_create_table
 
-# Хранение пользователей
-admins_id = [787264207, 155771631]
-
 
 async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     
@@ -39,25 +36,6 @@ async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
             await context.bot.send_message(chat_id=user_id, text=inf_example_text, parse_mode='Markdown')
         else:
             await context.bot.send_message(chat_id=user_id, text=inf_contacts_text, parse_mode='Markdown')
-    # ФУНКЦИЯ РЕДАКТИРОВАНИЯ СОПРОВОДИТЕЛЬНОГО ПИСЬМА
-    
-    # Вызвать функцию отправки отклика, со всеми вытекающими:
-    # Проверка : 1. Авторизован ли пользователь ? 2. Есть ли у него аккаунт для авторизации 3. Процесс авторизации при налиии такового 4. Повторное отправление отклика
-
-
-    # logging.info(f'USER\n{context.user_data}')
-    # new_keyboard = [
-    #     # [InlineKeyboardButton("Отклик отправлен", callback_data=f'{vacancy_id}, Отклик отправлен')],
-    #         [InlineKeyboardButton("Отклик отправлен", callback_data='Отклик отправлен')],
-    #     ]
-    # await query.edit_message_reply_markup(reply_markup=InlineKeyboardMarkup(new_keyboard))
-
-
-    # text = query.data[1]
-    # Обрабатываем нажатие кнопки
-    # await query.edit_message_text(text=f"Selected option: {query.data}", reply_markup=reply_markup)
-    # await query.edit_message_text(text=f"{vacancy_id}\nВы откликнулись на вакансию\n{text_v}")
-    # await query.answer(f'{text_v}')
 
 
 # Функция для обработки команды /start

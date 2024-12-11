@@ -96,8 +96,6 @@ async def message_text_sending(update: Update, context: ContextTypes.DEFAULT_TYP
         users = await get_all_users()  # Получаем всех пользователей
         users_id = [user['telegram_id'] for user in users]
 
-        users = [2091023767]
-
         for user_id in users_id:
             try:
                 await forward_message_with_image(update, context, current_message_text, image_path, user_id)
@@ -447,7 +445,7 @@ async def message_creater(vacancy):
 
     f'📅 <u><b>Занятость</b></u>: {employment}.\n\n'
 
-    f'🔗 <a href="{vacancy_url}">Ссылка на вакансию</a>\n\n'
+    # f'🔗 <a href="{vacancy_url}">Ссылка на вакансию</a>\n\n'
 
     'Присоединяйтесь к нашей команде и станьте частью\nдинамичной сферы энергетики! 💡✨'
     )
