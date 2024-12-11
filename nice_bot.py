@@ -22,7 +22,7 @@ from constants import *
 from test_db import User_tg, creat_user_in_db, get_user_from_db, update_user_in_db, start_create_table
 
 # Хранение пользователей
-admins_id = []
+admins_id = [787264207, 155771631]
 
 
 async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
@@ -69,7 +69,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         await creat_user_in_db(user_id)
     
     # if admin_authenticated.get(user_id, False):
-    if user_id not in admins_id:
+    if user_id in admins_id:
         await update_user_in_db(user_id, menu_state='Меню администратора')
         text = welcome_text 
 
