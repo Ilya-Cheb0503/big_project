@@ -109,6 +109,9 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     
         await update.message.reply_text(welcome_text, reply_markup=reply_markup)
 
+        sleep(0.5)
+        await context.bot.send_message(chat_id=user_id, text=welcome_two, parse_mode='Markdown')
+
 
 # Функция для обработки нажатий кнопок
 async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
