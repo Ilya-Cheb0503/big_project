@@ -172,7 +172,7 @@ async def get_vacancies_search_query(update: Update, context: ContextTypes.DEFAU
     context.user_data['vacancies_proccess'] = 'Looking'
 
 # async def get_vacancies(update, context, client_id, client_secret, search_query, page=1, per_page=3):
-async def get_vacancies(update, context, page=1, per_page=20):
+async def get_vacancies(update, context, page=1, per_page=100):
     
     """
     Получает список вакансий с hh.ru.
@@ -215,7 +215,7 @@ async def get_vacancy_count():
         logging.error(f"Ошибка при запросе: {response.status_code}")
 
 
-async def get_vacancies_by_keys_list(update, context, keywords, page=0, per_page=5):
+async def get_vacancies_by_keys_list(update, context, keywords, page=0, per_page=100):
     # Формируем строку запроса с использованием оператора OR
     query = ' OR '.join(keywords)
     
@@ -268,7 +268,7 @@ async def get_vacancies_by_keys_list(update, context, keywords, page=0, per_page
             await send_inline_buttons(update, context, message_text=vacancy_text, vacancy_url=vacancy_url)
 
 
-async def get_no_exp_vacancies(update, context, page=0, per_page=5):
+async def get_no_exp_vacancies(update, context, page=0, per_page=100):
     
     logging.info(f'Токен доступа = {ACCESS_TOKEN}')
     
@@ -319,7 +319,7 @@ async def get_no_exp_vacancies(update, context, page=0, per_page=5):
             await send_inline_buttons(update, context, message_text=vacancy_text, vacancy_url=vacancy_url)
 
 
-async def get_vacancies_by_key_word(update, context, key_word, page=0, per_page=5):
+async def get_vacancies_by_key_word(update, context, key_word, page=0, per_page=100):
     request_key_word = key_word
     
     logging.info(f'Токен доступа = {ACCESS_TOKEN}')
@@ -451,7 +451,7 @@ async def message_creater(vacancy):
 
     return vacancy_text
 
-async def get_all_company_vacancies(update, context, page=0, per_page=5):
+async def get_all_company_vacancies(update, context, page=0, per_page=100):
     
     logging.info(f'Токен доступа = {ACCESS_TOKEN}')
     
