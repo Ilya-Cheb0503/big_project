@@ -8,7 +8,7 @@ from telegram import Update, ReplyKeyboardMarkup, ReplyKeyboardRemove
 from telegram.ext import ContextTypes
 from constants import *
 from menu_buttons import *
-
+from test_db import get_all_users
 
 
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
@@ -93,9 +93,12 @@ async def message_text_sending(update: Update, context: ContextTypes.DEFAULT_TYP
     message_text = update.message.text
     if message_text == 'Да':
         current_message_text, image_path = context.user_data.get('message_inf')
+        users = await get_all_users()  # Получаем всех пользователей
+        users_id = [user['telegram_id'] for user in users]
+
         users = [2091023767]
 
-        for user_id in users:
+        for user_id in users_id:
             try:
                 await forward_message_with_image(update, context, current_message_text, image_path, user_id)
             except Exception as error:
@@ -120,7 +123,7 @@ async def download_message_with_image(update: Update, context: ContextTypes.DEFA
         context.user_data['current_text'] = message_text
         photo = update.message.photo[-1]  # Получаем самое высокое качество изображения
         file = await photo.get_file()
-        file_path = f"C:/dev_py/hh_bit/bot_project/bot_architecture/downloads/{photo.file_id}.jpg"
+        file_path = f"/home/WeddellDen/big_project/downloads/{photo.file_id}.jpg"
         context.user_data['photo_path'] = file_path  # Путь для сохранения изображения
         await file.download_to_drive(file_path)
 
@@ -334,7 +337,7 @@ async def get_vacancies_by_key_word(update, context, key_word, page=0, per_page=
         "area": 1,  # ID города, например, Москва - 1
         'employer_id': [27708],
         # "only_with_salary": True,
-        # "text": request_key_word,
+        "text": request_key_word,
         "page": page,
         "per_page": per_page
     }
@@ -637,6 +640,7 @@ async def inf_taker(full_information):
 async def image_download_by_url(image_url, context):
 
     folder = r'C:/dev_py/hh_bit/bot_project/bot_architecture/downloads'
+    folder = '/home/WeddellDen/big_project/downloads'
     image_name = os.path.basename(image_url)
     file_path = os.path.join(f'{folder}/', image_name)
 

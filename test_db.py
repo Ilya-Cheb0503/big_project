@@ -65,6 +65,19 @@ async def get_user(telegram_id: int):
         return user_dict
     return None
 
+async def get_all_users():
+    query = "SELECT * FROM users"
+    users = await database.fetch_all(query)
+    
+    user_list = []
+    for user in users:
+        user_dict = dict(user)
+        user_dict['user_inf'] = json.loads(user_dict['user_inf']) if user_dict['user_inf'] else None
+        user_list.append(user_dict)
+    
+    return user_list
+
+
 async def start_create_table():
     await database.connect()
     engine = create_engine(DATABASE_URL)
