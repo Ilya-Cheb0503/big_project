@@ -73,6 +73,7 @@ async def user_full_information_process(update: Update, context: ContextTypes.DE
         if current_text.__eq__('Всё верно!✅'):
             context.user_data.pop('Запрос full данных')
             await context.bot.send_message(chat_id=user_id, text=message_text, parse_mode='Markdown')
+            await main_start_menu(update, context)
         else:
             context.user_data['Запрос full данных'] = 'ФИО'
             await update.message.reply_text('Тогда начнем сначала.\nУкажите ваши ФИО:', reply_markup=ReplyKeyboardRemove())
@@ -183,34 +184,6 @@ async def forward_message_with_image(update: Update, context: ContextTypes.DEFAU
     else:
         # Если изображения нет, просто отправляем текст
         await context.bot.send_message(chat_id=user_id, text=message_text, parse_mode='Markdown')
-
-
-async def get_vacancies_proccess(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    logging.info('send process')
-    # Запрос текста сообщения от пользователя
-    message_creator = {
-        'Creating' : get_vacancies_search_query,
-        'Looking' : get_vacancies,
-        'Choosen' : choose_vacancy
-        # 'Completed' : message_text_sending
-    }
-    if 'vacancies_proccess' not in context.user_data:
-        context.user_data['vacancies_proccess'] = 'Creating'
-    current_message_state = context.user_data.get('vacancies_proccess')
-
-    current_step = message_creator[current_message_state]
-
-    await current_step(update, context)
-
-
-
-async def get_vacancies_search_query(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    logging.info('request creating process')
-    
-
-    await update.message.reply_text('Пришлите ключевое слово, по которому будем осуществлять поиск', reply_markup=ReplyKeyboardRemove())
-
-    context.user_data['vacancies_proccess'] = 'Looking'
 
 
 async def get_vacancy_count():
@@ -524,73 +497,6 @@ async def send_inline_buttons(update: Update, context: ContextTypes.DEFAULT_TYPE
     reply_markup = InlineKeyboardMarkup(keyboard)
     # Отправляем сообщение с инлайн кнопками
     await update.message.reply_text(message_text, reply_markup=reply_markup, parse_mode='HTML')
-
-
-
-async def choose_vacancy(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    choosed_option = update.message.text
-
-    context.user_data['vacancy_turn_choosed'] = choosed_option
-    all_options = {
-        'Первая' : send_request,
-        'Вторая' : send_request,
-        'Третья' : send_request,
-        'Показать еще' : None,
-        'Главное меню' : show_vacancies
-        # 'Completed' : message_text_sending
-    }
-    current_option = all_options[choosed_option]
-    await current_option(update, context)
-
-async def request_creating():
-    pass
-
-# async def send_request(context, access_token, user_access_token, resume_id, message):
-async def send_request(update, context):
-
-    id_translator = {
-        'Первая' : 0,
-        'Вторая' : 1,
-        'Третья' : 2,
-    }
-
-    vacancies_id = context.user_data.get('vacancies_id')
-    vacancy_turn_choosed = context.user_data.get('vacancy_turn_choosed')
-    vacancy_id = vacancies_id[id_translator[vacancy_turn_choosed]]
-
-
-    access_token = os.getenv('ACCESS_TOKEN')
-    
-    
-    headers = {
-        "Authorization": f"Bearer {USER_ACCESS_TOKEN}"
-    }
-    resume_id = '05e6f3e0ff0d9395310039ed1f33566f415a30'
-    data = {
-            "Authorization": f"Bearer {access_token}",
-            'vacancy_id': vacancy_id, # id вакансии
-            'resume_id': resume_id, 
-            "message": request_text, # текст сопроводительного документа
-            "Content-Type": "application/json"
-            }
-
-    
-
-
-    click_url = 'https://api.hh.ru/negotiations'
-    response = requests.post(click_url, headers=headers, data=data)
-    try:
-        resp = json.loads(
-        response.content.decode()
-    )
-        # logging.info(resp)
-    except Exception:
-        pass
-    # logging.info(response)
-    # Проверка статуса ответа
-    if response.status_code != 201:
-       pass
-        # logging.info(f"Ошибка при отправке отклика: {response.status_code} - {response.text}")
 
 
 async def inf_taker(full_information):

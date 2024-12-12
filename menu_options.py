@@ -70,7 +70,7 @@ async def admin_options_menu(button_text, update, context):
 
 async def vacancies_menu(button_text, update, context):
     button_text_options = {
-        'Посмотреть все вакансии': get_vacancies_proccess,
+        'Посмотреть все вакансии': None,
         'Категории': show_categories,
         'Вакансии без опыта': get_no_exp_vacancies,
         'Главное меню': main_start_menu
@@ -107,7 +107,7 @@ async def categories_menu(button_text, update, context):
     button_text_options = {
         'ТЭЦ': show_power_vacancies,
         'Офис': show_office_vacancies,
-        'Главное меню': show_vacancies
+        'Главное меню': main_start_menu
     }
 
     # current_option = button_text_options[button_text]
@@ -128,7 +128,7 @@ async def power_vacancies_menu(button_text, update, context):
     ]
 
     if button_text.__eq__('Главное меню'):
-        await show_categories(update, context)
+        await main_start_menu(update, context)
     elif button_text in energy_vacancy_keys:
         await get_vacancies_by_keys_list(update, context, energy_vacancy_keys[button_text])
     else:
@@ -143,7 +143,7 @@ async def office_vacancies_menu(button_text, update, context):
         ]
 
     if button_text.__eq__('Главное меню'):
-        await show_categories(update, context)
+        await main_start_menu(update, context)
     elif button_text in ofice_vacancy_keys:
 
         await get_vacancies_by_keys_list(update, context, ofice_vacancy_keys[button_text])
@@ -175,7 +175,7 @@ async def motivations_programms_menu(button_text, update, context):
         'Спортивные соревнования': motivations_programms[3],
         'Корпоративные культурно-массовые мероприятия': motivations_programms[4],
         'Совет молодых специалистов': motivations_programms[5],
-        'Главное меню': show_about_company,
+        'Главное меню': main_start_menu,
     }
 
     current_option = button_text_options[button_text]
