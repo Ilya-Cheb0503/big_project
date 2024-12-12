@@ -57,7 +57,7 @@ async def admin_options_menu(button_text, update, context):
     
     button_text_options = {
         'Рассылка': send_messages,
-        'Назад': main_start_menu,
+        'Главное меню': main_start_menu,
     }
     
     if 'message_state' not in context.user_data:
@@ -73,7 +73,7 @@ async def vacancies_menu(button_text, update, context):
         'Посмотреть все вакансии': get_vacancies_proccess,
         'Категории': show_categories,
         'Вакансии без опыта': get_no_exp_vacancies,
-        'Назад': main_start_menu
+        'Главное меню': main_start_menu
     }
 
     # current_option = button_text_options[button_text]
@@ -107,7 +107,7 @@ async def categories_menu(button_text, update, context):
     button_text_options = {
         'ТЭЦ': show_power_vacancies,
         'Офис': show_office_vacancies,
-        'Назад': show_vacancies
+        'Главное меню': show_vacancies
     }
 
     # current_option = button_text_options[button_text]
@@ -127,7 +127,7 @@ async def power_vacancies_menu(button_text, update, context):
         'Промышленная безопасность и охрана труда', 'Другое'
     ]
 
-    if button_text.__eq__('Назад'):
+    if button_text.__eq__('Главное меню'):
         await show_categories(update, context)
     elif button_text in energy_vacancy_keys:
         await get_vacancies_by_keys_list(update, context, energy_vacancy_keys[button_text])
@@ -142,7 +142,7 @@ async def office_vacancies_menu(button_text, update, context):
         'Промышленная безопасность и охрана труда'
         ]
 
-    if button_text.__eq__('Назад'):
+    if button_text.__eq__('Главное меню'):
         await show_categories(update, context)
     elif button_text in ofice_vacancy_keys:
 
@@ -154,10 +154,10 @@ async def office_vacancies_menu(button_text, update, context):
 
 async def about_company_menu(button_text, update, context):
     button_text_options = {
-        'Преимущества работы': company_benefit,
+        'Преимущества работы в ПАО «Мосэнерго»': company_benefit,
         'Филиалы': company_filiales,
         'Мотивационные и социальные программы': show_motivations_programms,
-        'Назад': main_start_menu
+        'Главное меню': main_start_menu
     }
 
     current_option = button_text_options[button_text]
@@ -175,7 +175,7 @@ async def motivations_programms_menu(button_text, update, context):
         'Спортивные соревнования': motivations_programms[3],
         'Корпоративные культурно-массовые мероприятия': motivations_programms[4],
         'Совет молодых специалистов': motivations_programms[5],
-        'Назад': show_about_company,
+        'Главное меню': show_about_company,
     }
 
     current_option = button_text_options[button_text]
@@ -195,7 +195,7 @@ async def FAQ_menu(button_text, update, context):
         '👩‍🏫 На какие должности можно прийти без опыта?': FAQ[5],
         '📝 Какие документы мне понадобятся при трудоустройстве?': FAQ[6],
         '🚀 Есть ли в компании возможность карьерного роста?': FAQ[7],
-        'Назад': main_start_menu
+        'Главное меню': main_start_menu
 
     }
     
@@ -216,6 +216,7 @@ async def list_waiting(update, context):
     if 'Запрос full данных' not in context.user_data:
         await update.message.reply_text(text_wait)
         context.user_data['Запрос full данных'] = 'Старт'
+        context.user_data['information_form'] = {}
     await user_full_information_process(update, context, current_text)
 
 async def contacts(update, context):

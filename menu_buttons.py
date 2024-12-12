@@ -47,7 +47,7 @@ async def show_admin_options(update: Update, context: ContextTypes.DEFAULT_TYPE)
     
     keyboard = [
         ['Рассылка'],
-        ['Назад']
+        ['Главное меню']
     ]
     reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
     await update.message.reply_text('Выберите опцию', reply_markup=reply_markup)
@@ -64,7 +64,7 @@ async def show_vacancies(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
         ['Посмотреть все вакансии'],
         ['Категории'],
         ['Вакансии без опыта'],
-        ['Назад']
+        ['Главное меню']
     ]
     reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
     await update.message.reply_text('Выберите вариант вакансий', reply_markup=reply_markup)
@@ -77,7 +77,7 @@ async def show_all_vacancies_sure(update: Update, context: ContextTypes.DEFAULT_
     
     keyboard = [
         ['Рискну'],
-        ['Назад'],
+        ['Главное меню'],
 
     ]
     reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
@@ -100,7 +100,7 @@ async def show_categories(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
         ['ТЭЦ'],
         ['Офис'],
         ['Стажировка'],
-        ['Назад']
+        ['Главное меню']
     ]
     reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
     await update.message.reply_text('Выберите нужную категорию', reply_markup=reply_markup)
@@ -118,7 +118,7 @@ async def show_power_vacancies(update: Update, context: ContextTypes.DEFAULT_TYP
         ['HR', 'ИТ'],
         ['Экономика', 'Сбыт'],
         ['Промышленная безопасность и охрана труда'],
-        ['Другое', 'Назад']
+        ['Другое', 'Главное меню']
     ]
     reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
     await update.message.reply_text('Выберите нужную категорию', reply_markup=reply_markup)
@@ -134,7 +134,7 @@ async def show_office_vacancies(update: Update, context: ContextTypes.DEFAULT_TY
         ['HR', 'Сбыт', 'ИТ'],
         ['Юриспруденция', 'Производственное управление'],
         ['Промышленная безопасность и охрана труда'],
-        ['Назад']
+        ['Главное меню']
     ]
     reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
     await update.message.reply_text('Выберите нужную категорию', reply_markup=reply_markup)
@@ -146,10 +146,10 @@ async def show_about_company(update: Update, context: ContextTypes.DEFAULT_TYPE)
     
     
     keyboard = [
-        ['Преимущества работы'],
+        ['Преимущества работы в ПАО «Мосэнерго»'],
         ['Филиалы'],
         ['Мотивационные и социальные программы'],
-        ['Назад'],
+        ['Главное меню'],
     ]
     reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
 
@@ -170,7 +170,7 @@ async def show_motivations_programms(update: Update, context: ContextTypes.DEFAU
         ['Спортивные соревнования'],
         ['Корпоративные культурно-массовые мероприятия'],
         ['Совет молодых специалистов'],
-        ['Назад'],
+        ['Главное меню'],
     ]
     reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
 
@@ -193,7 +193,7 @@ async def show_FAQ(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         ['👩‍🏫 На какие должности можно прийти без опыта?'],
         ['📝 Какие документы мне понадобятся при трудоустройстве?'],
         ['🚀 Есть ли в компании возможность карьерного роста?'],
-        ['Назад'],
+        ['Главное меню'],
 
     ]
     reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True)

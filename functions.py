@@ -16,7 +16,7 @@ from telegram.ext import Application, CallbackQueryHandler, CommandHandler, Cont
 
 
 async def ask_user_inf(user_id, user_inf):
-    user_name, user_phone = user_inf.split(';')
+    user_name, user_phone = re.split(r'[;,]', user_inf)
     user_inf_params = {'ФИО': user_name, 'Номер телефона': user_phone}
     await update_user_in_db(user_id, user_inf=user_inf_params)
 
@@ -27,18 +27,58 @@ async def user_full_information_process(update: Update, context: ContextTypes.DE
         'Старт': ('ФИО','Для начала укажите в сообщении ваши ФИО:'),
         'ФИО': ('Номер телефона', 'Ваш контактный номер телефона:'),
         'Номер телефона': ('Должность', 'Желаемая должность:'),
-        'Должность': ('Опыт работы', 'Ваш стаж:\n\nМенее года\n1-2 года\n2-3 года\n3 и более лет'),
-        'Опыт работы': ('done', 'Ура, ваша анкета уже у нас! Спасибо за Ваше время, мы Вас не подведем!\nЕсли Вам не хочется ждать, Вы можете позвонить нам напрямую: +7 495 957-19-57')
+        'Должность': ('Опыт работы', 'Ваш стаж:\n\n< 1 года\n1-2 года\n2-3 года\n3+ лет'),
+        'Опыт работы': ('Подтверждение', None),
+        'Подтверждение': ('done', 'Ура, ваша анкета уже у нас! Спасибо за Ваше время, мы Вас не подведем!\nЕсли Вам не хочется ждать, Вы можете позвонить нам напрямую: +7 495 957-19-57')
     }
     current_step = context.user_data['Запрос full данных']
     if current_step != 'Старт':
+        context.user_data['information_form'][current_step] = current_text
         await update_user_in_db(user_id, user_inf={current_step:current_text})
 
     next_step, message_text = step[current_step]
     context.user_data['Запрос full данных'] = next_step
-    await context.bot.send_message(chat_id=user_id, text=message_text, parse_mode='Markdown')
-    if next_step.__eq__('done'):
-        context.user_data.pop('Запрос full данных')
+    if current_step.__eq__('Должность'):
+        keyboard = [
+        ['< 1 года'],
+        ['1-2 года'],
+        ['2-3 года'],
+        ['3+ лет']
+        
+    ]
+        reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
+        await update.message.reply_text(message_text, reply_markup=reply_markup)
+    elif current_step.__eq__('Опыт работы'):
+        keyboard = [
+        ['Всё верно!✅'],
+        ['Редактировать'],
+        ]
+        user_inf = context.user_data['information_form']
+        full_name = user_inf['ФИО']
+        phone = user_inf['Номер телефона']
+        work = user_inf['Должность']
+        exp = user_inf['Опыт работы']
+        user_bio = (
+            'Проверьте, пожалуйста, данные:\n\n'
+            f'<b>ФИО:</b>\n{full_name}\n\n'
+            f'<b>Номер телефона:</b>\n{phone}\n\n'
+            f'<b>Должность:</b>\n{work}\n\n'
+            f'<b>Опыт работы:</b>\n{exp}\n\n'
+        )
+
+
+        reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
+        await update.message.reply_text(user_bio, reply_markup=reply_markup, parse_mode='HTML')
+    elif current_step.__eq__('Подтверждение'):
+        if current_text.__eq__('Всё верно!✅'):
+            context.user_data.pop('Запрос full данных')
+            await context.bot.send_message(chat_id=user_id, text=message_text, parse_mode='Markdown')
+        else:
+            context.user_data['Запрос full данных'] = 'ФИО'
+            await update.message.reply_text('Тогда начнем сначала.\nУкажите ваши ФИО:', reply_markup=ReplyKeyboardRemove())
+    else:
+        await context.bot.send_message(chat_id=user_id, text=message_text, parse_mode='Markdown')
+    
 
 
 async def send_messages(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
@@ -87,7 +127,7 @@ async def message_text_sending(update: Update, context: ContextTypes.DEFAULT_TYP
 
     keyboard = [
         ['Рассылка'],
-        ['Назад']
+        ['Главное меню']
     ]
 
     message_text = update.message.text
@@ -172,34 +212,6 @@ async def get_vacancies_search_query(update: Update, context: ContextTypes.DEFAU
 
     context.user_data['vacancies_proccess'] = 'Looking'
 
-# async def get_vacancies(update, context, client_id, client_secret, search_query, page=1, per_page=3):
-async def get_vacancies(update, context, page=1, per_page=100):
-    
-    """
-    Получает список вакансий с hh.ru.
-    
-    Args:
-        client_id (str): Client ID вашего приложения.
-        client_secret (str): Client Secret вашего приложения.
-        search_query (str): Поисковый запрос для вакансий.
-        page (int): Номер страницы результатов (по умолчанию 0).
-        per_page (int): Количество вакансий на странице (по умолчанию 20).
-        
-    Returns:
-        dict: Словарь с информацией о вакансиях.
-    """
-    
-    keyboard = [
-    ['Первая', 'Вторая', 'Третья'],
-    ['Показать еще'],
-    ['Назад']
-    ]
-    reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
-
-    request_key_word = update.message.text
-
-    await get_vacancies_by_key_word(update, context, key_word=request_key_word)
-
 
 async def get_vacancy_count():
     employer_id = '27708'
@@ -245,6 +257,7 @@ async def get_vacancies_by_keys_list(update, context, keywords, page=0, per_page
         if result['found'].__eq__(0):
             await update.message.reply_text('К сожалению, на текущий момент подходящих вакансий нет.')
             context.user_data['Запрос full данных'] = 'Старт'
+            context.user_data['information_form'] = {}
             await user_full_information_process(update, context, current_text=None)
             return
         
@@ -296,6 +309,7 @@ async def get_no_exp_vacancies(update, context, page=0, per_page=100):
         if result['found'].__eq__(0):
             await update.message.reply_text('К сожалению, на текущий момент подходящих вакансий нет.')
             context.user_data['Запрос full данных'] = 'Старт'
+            context.user_data['information_form'] = {}
             await user_full_information_process(update, context, current_text=None)
             return
         
@@ -352,6 +366,7 @@ async def get_vacancies_by_key_word(update, context, key_word, page=0, per_page=
         if result['found'].__eq__(0):
             await update.message.reply_text('К сожалению, на текущий момент подходящих вакансий нет.')
             context.user_data['Запрос full данных'] = 'Старт'
+            context.user_data['information_form'] = {}
             await user_full_information_process(update, context, current_text=None)
             return
         tight_inf = await inf_taker(result['items'])
@@ -476,6 +491,7 @@ async def get_all_company_vacancies(update, context, page=0, per_page=100):
         if result['found'].__eq__(0):
             await update.message.reply_text('К сожалению, на текущий момент подходящих вакансий нет.')
             context.user_data['Запрос full данных'] = 'Старт'
+            context.user_data['information_form'] = {}
             await user_full_information_process(update, context, current_text=None)
             return
         formatted_json = json.dumps(result['items'], ensure_ascii=False, indent=4)
@@ -500,7 +516,7 @@ async def send_inline_buttons(update: Update, context: ContextTypes.DEFAULT_TYPE
     logging.info('РЕГИСТРАЦИЯ КНОПОК')
     # Создаем инлайн кнопки
     keyboard = [
-        [InlineKeyboardButton("Откликнуться", url=vacancy_url)],
+        [InlineKeyboardButton("Откликнуться", callback_data='test', url=vacancy_url)],
         [InlineKeyboardButton("Получить консультацию специалиста 📞", callback_data='get_spec')],
     ]
 
@@ -520,7 +536,7 @@ async def choose_vacancy(update: Update, context: ContextTypes.DEFAULT_TYPE):
         'Вторая' : send_request,
         'Третья' : send_request,
         'Показать еще' : None,
-        'Назад' : show_vacancies
+        'Главное меню' : show_vacancies
         # 'Completed' : message_text_sending
     }
     current_option = all_options[choosed_option]
