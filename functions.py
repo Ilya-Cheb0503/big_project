@@ -241,9 +241,6 @@ async def get_vacancies_by_keys_list(update, context, keywords, page=0, per_page
         logging.info(f'tight_inf = {tight_inf}\n\n')
 
 
-        context.user_data['vacancies_proccess'] = 'Choosen'
-        # context.user_data.pop('vacancies_proccess')
-        # new_vac['id Вакансии'] = vac['id']
         context.user_data['vacancies_id'] = []
         for vacancy in tight_inf:
             vacancy_url = vacancy['Ссылка на вакансию']
@@ -293,9 +290,6 @@ async def get_no_exp_vacancies(update, context, page=0, per_page=100):
         logging.info(f'tight_inf = {tight_inf}\n\n')
 
 
-        context.user_data['vacancies_proccess'] = 'Choosen'
-        # context.user_data.pop('vacancies_proccess')
-        # new_vac['id Вакансии'] = vac['id']
         context.user_data['vacancies_id'] = []
         for vacancy in tight_inf:
             vacancy_url = vacancy['Ссылка на вакансию']
@@ -347,9 +341,6 @@ async def get_vacancies_by_key_word(update, context, key_word, page=0, per_page=
         logging.info(f'tight_inf = {tight_inf}\n\n')
 
 
-        context.user_data['vacancies_proccess'] = 'Choosen'
-        # context.user_data.pop('vacancies_proccess')
-        # new_vac['id Вакансии'] = vac['id']
         context.user_data['vacancies_id'] = []
         for vacancy in tight_inf:
             vacancy_url = vacancy['Ссылка на вакансию']
@@ -473,7 +464,6 @@ async def get_all_company_vacancies(update, context, page=0, per_page=100):
 
         logging.info(f'tight_inf = {tight_inf}\n\n')
 
-        context.user_data['vacancies_proccess'] = 'Choosen'
         for vacancy in tight_inf:
             vacancy_url = vacancy['Ссылка на вакансию']
             vacancy_text = await message_creater(vacancy)

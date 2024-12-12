@@ -57,8 +57,6 @@ async def show_vacancies(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
     user_id = update.effective_user.id
     await update_user_in_db(user_id, menu_state='Меню вакансий')
     context.user_data['menu_state'] = 'Меню вакансий'
-    if 'vacancies_proccess' in context.user_data:
-        context.user_data.pop('vacancies_proccess')
     
     keyboard = [
         ['Посмотреть все вакансии'],

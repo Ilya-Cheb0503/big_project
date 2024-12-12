@@ -84,7 +84,7 @@ async def vacancies_menu(button_text, update, context):
             await get_all_company_vacancies(update, context)
             
         else:
-            await show_vacancies(update, context)
+            await main_start_menu(update, context)
     
     elif button_text.__eq__('Посмотреть все вакансии'):
         context.user_data['a_lot_of_vacancies'] = True
@@ -92,9 +92,6 @@ async def vacancies_menu(button_text, update, context):
         context.user_data['vacancies_count'] = vacancies_count
         await show_all_vacancies_sure(update, context)
         
-
-    elif 'vacancies_proccess' in context.user_data:
-        await get_vacancies_proccess(update, context)
     elif type(button_text_options[button_text]) == str:
         await update.message.reply_text(button_text_options[button_text])
         
