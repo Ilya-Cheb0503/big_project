@@ -162,7 +162,7 @@ async def download_message_with_image(update: Update, context: ContextTypes.DEFA
         context.user_data['current_text'] = message_text
         photo = update.message.photo[-1]  # Получаем самое высокое качество изображения
         file = await photo.get_file()
-        file_path = f"/home/WeddellDen/big_project/downloads/{photo.file_id}.jpg"
+        file_path = f"{downloads_path}/{photo.file_id}.jpg"
         context.user_data['photo_path'] = file_path  # Путь для сохранения изображения
         await file.download_to_drive(file_path)
 
@@ -552,7 +552,7 @@ async def inf_taker(full_information):
 async def image_download_by_url(image_url, context):
 
     folder = r'C:/dev_py/hh_bit/bot_project/bot_architecture/downloads'
-    folder = '/home/WeddellDen/big_project/downloads'
+    folder = downloads
     image_name = os.path.basename(image_url)
     file_path = os.path.join(f'{folder}/', image_name)
 
