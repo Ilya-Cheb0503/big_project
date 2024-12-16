@@ -27,12 +27,13 @@ async def user_full_information_process(update: Update, context: ContextTypes.DE
         'Старт': ('ФИО','Для начала укажите в сообщении ваши ФИО:'),
         'ФИО': ('Номер телефона', 'Ваш контактный номер телефона:'),
         'Номер телефона': ('Должность', 'Желаемая должность:'),
-        'Должность': ('Опыт работы', 'Ваш стаж:\n\n< 1 года\n1-2 года\n2-3 года\n3+ лет'),
-        'Опыт работы': ('Подтверждение', None),
+        'Должность': ('Опыт работы', 'Ваш стаж:'),
+        'Опыт работы': ('Образование', 'Ваш уровень образования:'),
+        'Образование': ('Подтверждение', None),
         'Подтверждение': ('done', 'Ура, ваша анкета уже у нас! Спасибо за Ваше время, мы Вас не подведем!\nЕсли Вам не хочется ждать, Вы можете позвонить нам напрямую: +7 495 957-19-57')
     }
     current_step = context.user_data['Запрос full данных']
-    if current_step != 'Старт':
+    if current_step != 'Старт' and current_step != 'Подтверждение':
         context.user_data['information_form'][current_step] = current_text
         await update_user_in_db(user_id, user_inf={current_step:current_text})
 
@@ -50,6 +51,19 @@ async def user_full_information_process(update: Update, context: ContextTypes.DE
         await update.message.reply_text(message_text, reply_markup=reply_markup)
     elif current_step.__eq__('Опыт работы'):
         keyboard = [
+        ['Высшее'],
+        ['Среднее'],
+        ['Отсутствует'],
+        
+        
+        # ['2-3 года'],
+        # ['3+ лет']
+        
+    ]
+        reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
+        await update.message.reply_text(message_text, reply_markup=reply_markup)
+    elif current_step.__eq__('Образование'):
+        keyboard = [
         ['Всё верно!✅'],
         ['Редактировать'],
         ]
@@ -58,12 +72,14 @@ async def user_full_information_process(update: Update, context: ContextTypes.DE
         phone = user_inf['Номер телефона']
         work = user_inf['Должность']
         exp = user_inf['Опыт работы']
+        educ = user_inf['Образование']
         user_bio = (
             'Проверьте, пожалуйста, данные:\n\n'
             f'<b>ФИО:</b>\n{full_name}\n\n'
             f'<b>Номер телефона:</b>\n{phone}\n\n'
             f'<b>Должность:</b>\n{work}\n\n'
             f'<b>Опыт работы:</b>\n{exp}\n\n'
+            f'<b>Образование:</b>\n{educ}\n\n'
         )
 
 
