@@ -8,11 +8,23 @@ from telegram import Update, ReplyKeyboardMarkup, ReplyKeyboardRemove
 from telegram.ext import ContextTypes
 from constants import *
 from menu_buttons import *
-from test_db import get_all_users
+from test_db import *
 
 
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
 from telegram.ext import Application, CallbackQueryHandler, CommandHandler, ContextTypes
+
+
+async def check_user_inf(user_id):
+    user = await get_user(user_id)
+    user_inf = user['user_inf']
+    if 'ФИО' and 'Образование' in user_inf:
+        return True
+    return False
+        
+    
+
+
 
 
 async def ask_user_inf(user_id, user_inf):
@@ -73,22 +85,42 @@ async def user_full_information_process(update: Update, context: ContextTypes.DE
         work = user_inf['Должность']
         exp = user_inf['Опыт работы']
         educ = user_inf['Образование']
+        
         user_bio = (
-            'Проверьте, пожалуйста, данные:\n\n'
             f'<b>ФИО:</b>\n{full_name}\n\n'
             f'<b>Номер телефона:</b>\n{phone}\n\n'
             f'<b>Должность:</b>\n{work}\n\n'
             f'<b>Опыт работы:</b>\n{exp}\n\n'
             f'<b>Образование:</b>\n{educ}\n\n'
-        )
-
+            )
+        
+        
 
         reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
         await update.message.reply_text(user_bio, reply_markup=reply_markup, parse_mode='HTML')
     elif current_step.__eq__('Подтверждение'):
         if current_text.__eq__('Всё верно!✅'):
             context.user_data.pop('Запрос full данных')
+            
+            user_inf = context.user_data['information_form']
+            full_name = user_inf['ФИО']
+            phone = user_inf['Номер телефона']
+            work = user_inf['Должность']
+            exp = user_inf['Опыт работы']
+            educ = user_inf['Образование']
+            
+            user_bio_notice = (
+            f'Пользователь: {full_name}\n'
+            'Заполнил анкету персональных данных.\n\n'
+            f'<b>Номер телефона:</b>\n{phone}\n'
+            f'<b>Должность:</b>\n{work}\n'
+            f'<b>Опыт работы:</b>\n{exp}\n'
+            f'<b>Образование:</b>\n{educ}\n'
+            )
+            
+            
             await context.bot.send_message(chat_id=user_id, text=message_text, parse_mode='Markdown')
+            await context.bot.send_message(chat_id=group_id, text=user_bio_notice, parse_mode='HTML')
             await main_start_menu(update, context)
         else:
             context.user_data['Запрос full данных'] = 'ФИО'
