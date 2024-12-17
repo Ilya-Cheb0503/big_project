@@ -63,8 +63,9 @@ async def user_full_information_process(update: Update, context: ContextTypes.DE
         await update.message.reply_text(message_text, reply_markup=reply_markup)
     elif current_step.__eq__('Опыт работы'):
         keyboard = [
-        ['Высшее'],
-        ['Среднее'],
+        ['Высшее (бакалавриат)', 'Высшее (специалитет, магистратура)'],
+        ['Среднее профессиональное', 'Среднее специальное'],
+        ['Среднее общее (11 классов)', 'Основное общее (9 классов)'],
         ['Отсутствует'],
         
         
@@ -527,7 +528,7 @@ async def send_inline_buttons(update: Update, context: ContextTypes.DEFAULT_TYPE
     logging.info('РЕГИСТРАЦИЯ КНОПОК')
     # Создаем инлайн кнопки
     keyboard = [
-        [InlineKeyboardButton("Откликнуться", callback_data='test', url=vacancy_url)],
+        [InlineKeyboardButton("Откликнуться", callback_data='request', url=vacancy_url)],
         [InlineKeyboardButton("Получить консультацию специалиста 📞", callback_data='get_spec')],
     ]
 
