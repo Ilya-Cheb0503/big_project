@@ -14,7 +14,7 @@ async def user_main_menu(button_text, update, context):
             'Вакансии': show_vacancies,
             'О компании': show_about_company,
             'Частые вопросы': show_FAQ,
-            'Лист ожидания': list_waiting,
+            'Мои данные': list_waiting,
             'Контакты': contacts,
         }
         if 'Запрос full данных' in context.user_data:
@@ -35,7 +35,7 @@ async def admin_main_menu(button_text, update, context):
             'Вакансии': show_vacancies,
             'О компании': show_about_company,
             'Частые вопросы': show_FAQ,
-            'Лист ожидания': list_waiting,
+            'Мои данные': list_waiting,
             'Контакты': contacts,
             'Панель администратора': show_admin_options
         }
@@ -118,11 +118,6 @@ async def categories_menu(button_text, update, context):
 
 
 async def power_vacancies_menu(button_text, update, context):
-    vacancies_options = [
-        'Теплоэнергетика', 'Электроэнергетика', 'АСУ ТП',
-        'РЗА', 'Ремонт', 'Химия', 'HR', 'ИТ', 'Экономика', 'Сбыт',
-        'Промышленная безопасность и охрана труда', 'Другое'
-    ]
 
     if button_text.__eq__('Главное меню'):
         await main_start_menu(update, context)
@@ -133,11 +128,6 @@ async def power_vacancies_menu(button_text, update, context):
 
 
 async def office_vacancies_menu(button_text, update, context):
-    vacancies_options = [
-        'Закупки', 'Экономика','HR', 'Сбыт', 'ИТ',
-        'Юриспруденция', 'Производственное управление',
-        'Промышленная безопасность и охрана труда'
-        ]
 
     if button_text.__eq__('Главное меню'):
         await main_start_menu(update, context)
