@@ -203,7 +203,8 @@ async def message_text_sending(update: Update, context: ContextTypes.DEFAULT_TYP
 
 async def download_message_with_image(update: Update, context: ContextTypes.DEFAULT_TYPE):
     # Получаем текст сообщения
-    message_text = context.user_data.get('current_text')
+    # message_text = context.user_data.get('current_text')
+    message_text = update.message.text
     file_path = None
 
     if update.message.photo:
