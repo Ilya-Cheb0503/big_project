@@ -18,6 +18,7 @@ from menu_options import *
 from menu_buttons import *
 from functions import *
 from constants import *
+from keyboards import *
 
 from test_db import User_tg, creat_user_in_db, get_user_from_db, update_user_in_db, start_create_table
 
@@ -36,6 +37,11 @@ async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
             await context.bot.send_message(chat_id=user_id, text=inf_example_text, parse_mode='Markdown')
         else:
             await context.bot.send_message(chat_id=user_id, text=inf_contacts_text, parse_mode='Markdown')
+    elif query.data.__eq__('request'):
+        user = await get_user_from_db(user_id)
+        user_inf = user['user_inf']
+        if 'ФИО' and 'Образование' in user_inf:
+            await context.bot.send_message(chat_id=group_id, text='None', parse_mode='HTML')
 
 
 # Функция для обработки команды /start
@@ -51,14 +57,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         await update_user_in_db(user_id, menu_state='Меню администратора')
         text = welcome_text 
 
-        keyboard = [
-            ['Вакансии'],
-            ['О компании'],
-            ['Частые вопросы'],
-            ['Лист ожидания'],
-            ['Контакты'],
-            ['Панель администратора']
-        ]
+        keyboard = admin_main_menu_keyboard
         
         # Создаем разметку клавиатуры
         reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
@@ -72,13 +71,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     else:
         await update_user_in_db(user_id, menu_state='Меню пользователя')
 
-        keyboard = [
-            ['Вакансии'],
-            ['О компании'],
-            ['Частые вопросы'],
-            ['Лист ожидания'],
-            ['Контакты']
-        ]
+        keyboard = user_main_menu_keyboard
         
         # Создаем разметку клавиатуры
         reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
