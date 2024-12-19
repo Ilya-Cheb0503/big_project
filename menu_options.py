@@ -1,12 +1,12 @@
 import logging
 
-from telegram import Update, ReplyKeyboardMarkup
+from telegram import ReplyKeyboardMarkup, Update
 from telegram.ext import ContextTypes
 
-from nice_bot import send_messages, admins_id
-from functions import *
 from constants import *
+from functions import *
 from menu_buttons import *
+from nice_bot import admins_id, send_messages
 
 
 async def user_main_menu(button_text, update, context):
@@ -18,7 +18,7 @@ async def user_main_menu(button_text, update, context):
             'Контакты': contacts,
         }
         if 'Запрос full данных' in context.user_data:
-            await list_waiting(update, context)
+            await user_full_information_process(update, context, current_text=None)(update, context)
         elif button_text not in button_text_options:
             if button_text.lower().__eq__('без опыта'):
                 logging.info('БЕЗ ОПЫТА')
@@ -40,7 +40,7 @@ async def admin_main_menu(button_text, update, context):
             'Панель администратора': show_admin_options
         }
         if 'Запрос full данных' in context.user_data:
-            await list_waiting(update, context)
+            await user_full_information_process(update, context, current_text=None)
         elif button_text not in button_text_options:
             if button_text.lower().__eq__('без опыта'):
                 logging.info('БЕЗ ОПЫТА')
@@ -200,8 +200,15 @@ async def list_waiting(update, context):
         'небольшую форму и мы сообщим Вам в числе первых, когда\n'
         'подходящая вакансия появится!'
     )
+
+    keyboard_cancel = [
+        ['Отмена']
+    ]
+
+    reply_markup = ReplyKeyboardMarkup(keyboard_cancel, resize_keyboard=True)
+    
     if 'Запрос full данных' not in context.user_data:
-        await update.message.reply_text(text_wait)
+        await update.message.reply_text(text_wait, reply_markup=reply_markup)
         context.user_data['Запрос full данных'] = 'Старт'
         context.user_data['information_form'] = {}
     await user_full_information_process(update, context, current_text)
