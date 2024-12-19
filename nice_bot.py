@@ -1,47 +1,83 @@
-from dotenv import load_dotenv
-import os
-
-from time import sleep
-import logging
-import nest_asyncio
-from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup, ReplyKeyboardRemove
-from telegram.ext import ApplicationBuilder, CommandHandler, MessageHandler, filters, ContextTypes, CallbackQueryHandler
-from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
-from telegram.ext import Application, CallbackQueryHandler, CommandHandler, ContextTypes
-
 import asyncio
-from telegram import Update, ReplyKeyboardMarkup
-from telegram.ext import ApplicationBuilder, CommandHandler, MessageHandler, filters, ContextTypes
+import logging
+import os
+from time import sleep
 
-from settings import *
-from menu_options import *
-from menu_buttons import *
-from functions import *
+import nest_asyncio
+from dotenv import load_dotenv
+from telegram import (InlineKeyboardButton, InlineKeyboardMarkup,
+                      ReplyKeyboardMarkup, ReplyKeyboardRemove, Update)
+from telegram.ext import (Application, ApplicationBuilder,
+                          CallbackQueryHandler, CommandHandler, ContextTypes,
+                          MessageHandler, filters)
+
 from constants import *
+from functions import *
 from keyboards import *
-
-from test_db import User_tg, creat_user_in_db, get_user_from_db, update_user_in_db, start_create_table
+from menu_buttons import *
+from menu_options import *
+from new_module import *
+from settings import *
+from test_db import (User_tg, creat_user_in_db, get_user_from_db,
+                     start_create_table, update_user_in_db)
 
 
 async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     
-    user_id = update.effective_user.id
     query = update.callback_query
-    # logging.info(f'КНОПКУ НАЖАЛИ\n{query}')
-    await query.answer()  # Подтверждаем нажатие кнопки
+    await query.answer()
+
+    user_id = update.effective_user.id
+    user = await get_user_from_db(user_id)
+    user_inf = user['user_inf']
+    user_name = user_inf['ФИО']
+
+    if not user_inf['ФИО'] or not user_inf['Номер телефона']:
+        await user_form_create(update, context, message_text='Пожалуйста, заполните прежде ваши данные:')
+        context.user_data['запрос данных'] = True
+        await context.bot.send_message(chat_id=user_id, text=inf_example_text, parse_mode='Markdown')
+
     if query.data.__eq__('get_spec'):
+        await context.bot.send_message(chat_id=user_id, text=inf_contacts_text, parse_mode='Markdown')
+
+    else:
+        
+        int_id = int(query.data)
+        vacancy = await get_vacancy_by_vacancy_id(int_id)
+        vacancy_url = vacancy.vacancy_inf['Ссылка на вакансию']
+        vacancy_name = vacancy.vacancy_inf['Вакансия']
+
+        user_send_req_text = (
+            f'Пользователь: {user_name}\n'
+            f'Откликнулся на вакансию: {vacancy_name}'
+        )
+
+        await context.bot.send_message(chat_id=group_id, text=user_send_req_text)
+
+        # Создаем новую кнопку с URL
+        keyboard = [
+            
+        [InlineKeyboardButton("Ссылка на вакансию", callback_data='req_button', url=vacancy_url)],
+        [InlineKeyboardButton("Получить консультацию специалиста 📞", callback_data='get_spec')],
+    ]
+
+        # Создаем разметку для кнопок
+        reply_markup = InlineKeyboardMarkup(keyboard)
+
+        # Обновляем сообщение с новой клавиатурой
+        await context.bot.edit_message_reply_markup(chat_id=query.from_user.id, message_id=query.message.message_id, reply_markup=reply_markup)
+
+
+        # await context.bot.send_message(query.from_user.id, "https://example.com")
+        vacancion_name = query.data.split(';')[1]
         user = await get_user_from_db(user_id)
         user_inf = user['user_inf']
-        if not user_inf['ФИО'] or not user_inf['Номер телефона']:
-            context.user_data['запрос данных'] = True
-            await context.bot.send_message(chat_id=user_id, text=inf_example_text, parse_mode='Markdown')
-        else:
-            await context.bot.send_message(chat_id=user_id, text=inf_contacts_text, parse_mode='Markdown')
-    elif query.data.__eq__('request'):
-        user = await get_user_from_db(user_id)
-        user_inf = user['user_inf']
+        user_name = user_inf['ФИО']
+        logging.info(f'IMPOOOOORTANT {vacancion_name}')
+        note_text = f'Пользователь: {user_name}\nОткликнулся на вакансию: {vacancion_name}'
         if 'ФИО' and 'Образование' in user_inf:
-            await context.bot.send_message(chat_id=group_id, text='None', parse_mode='HTML')
+            logging.info(f'SEEEENDING {vacancion_name}')
+            await context.bot.send_message(chat_id=group_id, text=note_text, parse_mode='HTML')
 
 
 # Функция для обработки команды /start
