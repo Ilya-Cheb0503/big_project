@@ -1,12 +1,12 @@
 import logging
 
-from telegram import Update, ReplyKeyboardMarkup
+from telegram import ReplyKeyboardMarkup, Update
 from telegram.ext import ContextTypes
 
 from constants import *
 from keyboards import *
-
 from test_db import get_user_from_db, update_user_in_db
+
 
 async def main_start_menu(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     user_id = update.effective_user.id
@@ -16,7 +16,6 @@ async def main_start_menu(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
         if user:
                 await update_user_in_db(user_id, menu_state='Меню администратора')
                 context.user_data['menu_state'] = 'Меню администратора'
-                text = 'Выберите опцию'
         keyboard = admin_main_menu_keyboard
     else:
         context.user_data['menu_state'] = 'Меню пользователя'
