@@ -63,15 +63,10 @@ async def user_full_information_process(update: Update, context: ContextTypes.DE
         await update.message.reply_text(message_text, reply_markup=reply_markup)
     elif current_step.__eq__('Опыт работы'):
         keyboard = [
-        ['Высшее (бакалавриат)', 'Высшее (специалитет, магистратура)'],
-        ['Среднее профессиональное', 'Среднее специальное'],
-        ['Среднее общее (11 классов)', 'Основное общее (9 классов)'],
-        ['Отсутствует'],
-        
-        
-        # ['2-3 года'],
-        # ['3+ лет']
-        
+        ['Высшее образование'],
+        ['Среднее профессиональное'],
+        ['Школьное'],
+
     ]
         reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
         await update.message.reply_text(message_text, reply_markup=reply_markup)
