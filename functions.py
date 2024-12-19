@@ -1,18 +1,17 @@
+import json
 import logging
 import os
-import requests
-import json
 import re
 
-from telegram import Update, ReplyKeyboardMarkup, ReplyKeyboardRemove
+import requests
+from telegram import (InlineKeyboardButton, InlineKeyboardMarkup,
+                      ReplyKeyboardMarkup, ReplyKeyboardRemove, Update)
 from telegram.ext import ContextTypes
+
 from constants import *
 from menu_buttons import *
+from new_module import *
 from test_db import *
-
-
-from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
-from telegram.ext import Application, CallbackQueryHandler, CommandHandler, ContextTypes
 
 
 async def check_user_inf(user_id):
@@ -21,11 +20,7 @@ async def check_user_inf(user_id):
     if 'ФИО' and 'Образование' in user_inf:
         return True
     return False
-        
     
-
-
-
 
 async def ask_user_inf(user_id, user_inf):
     user_name, user_phone = re.split(r'[;,]', user_inf)
@@ -45,6 +40,12 @@ async def user_full_information_process(update: Update, context: ContextTypes.DE
         'Подтверждение': ('done', 'Ура, ваша анкета уже у нас! Спасибо за Ваше время, мы Вас не подведем!\nЕсли Вам не хочется ждать, Вы можете позвонить нам напрямую: +7 495 957-19-57')
     }
     current_step = context.user_data['Запрос full данных']
+    logging.info(f'current_text = {current_text}')
+    if current_text == 'Отмена':
+        context.user_data.pop('Запрос full данных')
+        await main_start_menu(update, context)
+        return 
+    
     if current_step != 'Старт' and current_step != 'Подтверждение':
         context.user_data['information_form'][current_step] = current_text
         await update_user_in_db(user_id, user_inf={current_step:current_text})
@@ -113,7 +114,6 @@ async def user_full_information_process(update: Update, context: ContextTypes.DE
             f'<b>Опыт работы:</b>\n{exp}\n'
             f'<b>Образование:</b>\n{educ}\n'
             )
-            
             
             await context.bot.send_message(chat_id=user_id, text=message_text, parse_mode='Markdown')
             await context.bot.send_message(chat_id=group_id, text=user_bio_notice, parse_mode='HTML')
@@ -246,155 +246,70 @@ async def get_vacancy_count():
         logging.error(f"Ошибка при запросе: {response.status_code}")
 
 
-async def get_vacancies_by_keys_list(update, context, keywords, page=0, per_page=100):
-    # Формируем строку запроса с использованием оператора OR
-    query = ' OR '.join(keywords)
-    
-    logging.info(f'Токен доступа = {ACCESS_TOKEN}')
-    
-    # Запрос списка вакансий
-    vacancies_url = "https://api.hh.ru/vacancies"
-    headers = {
-        "Authorization": f"Bearer {ACCESS_TOKEN}",
-        "Content-Type": "application/json"
-    }
-    params = {
-        "area": 1,  # ID города, например, Москва - 1
-        'employer_id': [27708],
-        "text": query,
-        "page": page,
-        "per_page": per_page
-    }
-    response = requests.get(vacancies_url, headers=headers, params=params)
-    if response.status_code != 200:
-        logging.error(f"Ошибка при получении списка вакансий: {response.status_code} - {response.text}")
-    else:
-        result = response.json()
-        vacancies_count = result['found']
-        logging.info(f'result = {result}\n\n')
-        if result['found'].__eq__(0):
-            await update.message.reply_text('К сожалению, на текущий момент подходящих вакансий нет.')
-            context.user_data['Запрос full данных'] = 'Старт'
-            context.user_data['information_form'] = {}
-            await user_full_information_process(update, context, current_text=None)
-            return
+async def check_for_empty_list(result):
+    return result == []
+
+
+async def user_form_create(update, context, message_text=None):
+
+    keyboard_cancel = [
+        ['Отмена']
+    ]
+    if message_text == None:
+        message_text = (
+            'К сожалению, на текущий момент подходящих вакансий нет.\n'
+            'Предлагаем заполнить небольшую форму.\n'
+            'И мы сообщим Вам в числе первых, когда подходящая вакансия появится!'
+        )
+
+    reply_markup = ReplyKeyboardMarkup(keyboard_cancel, resize_keyboard=True)
+    await update.message.reply_text(message_text, reply_markup=reply_markup)
+
+    context.user_data['Запрос full данных'] = 'Старт'
+    context.user_data['information_form'] = {}
+    await user_full_information_process(update, context, current_text=None)
+
+
+async def inline_buttons_packed(update, context, result):
+    for vacancy_full in result:
+        vacancy = vacancy_full.vacancy_inf
+        vacancy_id = vacancy_full.vacancy_id
+        vacancy_text = await message_creater(vacancy)
         
-        formatted_json = json.dumps(result['items'], ensure_ascii=False, indent=4)
-        logging.info(f'formatted_json = {formatted_json}\n\n')
-        tight_inf = await inf_taker(result['items'])
-
-        logging.info(f'tight_inf = {tight_inf}\n\n')
+        await send_inline_buttons(update, context, message_text=vacancy_text, vacancy_id=vacancy_id)
 
 
-        context.user_data['vacancies_id'] = []
-        for vacancy in tight_inf:
-            vacancy_url = vacancy['Ссылка на вакансию']
-            vacancy_text = await message_creater(vacancy)
+async def get_vacancies_by_keys_list(update, context, keywords):
+    result = await get_vacancies_by_keys_list_module(keywords)
+
+    empty_list = await check_for_empty_list(result)
+    if empty_list:
+        await user_form_create(update, context)
+        return
+
+    await inline_buttons_packed(update, context, result)
             
-            vacancy_id = vacancy.pop('id Вакансии')
-            context.user_data['vacancies_id'].append(vacancy_id)
-            # context.user_data[vacancy_id] = vacancy_text
-            await send_inline_buttons(update, context, message_text=vacancy_text, vacancy_url=vacancy_url)
+
+async def get_no_exp_vacancies(update, context):
+    result = await get_no_exp_vacancies_module()
+
+    empty_list = await check_for_empty_list(result)
+    if empty_list:
+        await user_form_create(update, context)
+        return
+
+    await inline_buttons_packed(update, context, result)
 
 
-async def get_no_exp_vacancies(update, context, page=0, per_page=100):
-    
-    logging.info(f'Токен доступа = {ACCESS_TOKEN}')
-    
-    # Запрос списка вакансий
-    vacancies_url = "https://api.hh.ru/vacancies"
-    headers = {
-        "Authorization": f"Bearer {ACCESS_TOKEN}",
-        "Content-Type": "application/json"
-    }
-    params = {
-        "area": 1,  # ID города, например, Москва - 1
-        'employer_id': [27708],
-        "experience": "noExperience",
-        "page": page,
-        "per_page": per_page
-    }
-    response = requests.get(vacancies_url, headers=headers, params=params)
-    if response.status_code != 200:
-        logging.error(f"Ошибка при получении списка вакансий: {response.status_code} - {response.text}")
-    else:
-        result = response.json()
-        vacancies_count = result['found']
-        logging.info(f'result = {result}\n\n')
-        if result['found'].__eq__(0):
-            await update.message.reply_text('К сожалению, на текущий момент подходящих вакансий нет.')
-            context.user_data['Запрос full данных'] = 'Старт'
-            context.user_data['information_form'] = {}
-            await user_full_information_process(update, context, current_text=None)
-            return
-        
-        formatted_json = json.dumps(result['items'], ensure_ascii=False, indent=4)
-        logging.info(f'formatted_json = {formatted_json}\n\n')
-        tight_inf = await inf_taker(result['items'])
+async def get_vacancies_by_key_word(update, context, key_word):
+    result = await get_vacancies_by_key_word_module(key_word)
 
-        logging.info(f'tight_inf = {tight_inf}\n\n')
+    empty_list = await check_for_empty_list(result)
+    if empty_list:
+        await user_form_create(update, context)
+        return
 
-
-        context.user_data['vacancies_id'] = []
-        for vacancy in tight_inf:
-            vacancy_url = vacancy['Ссылка на вакансию']
-            vacancy_text = await message_creater(vacancy)
-            
-            vacancy_id = vacancy.pop('id Вакансии')
-            context.user_data['vacancies_id'].append(vacancy_id)
-            # context.user_data[vacancy_id] = vacancy_text
-            await send_inline_buttons(update, context, message_text=vacancy_text, vacancy_url=vacancy_url)
-
-
-async def get_vacancies_by_key_word(update, context, key_word, page=0, per_page=100):
-    request_key_word = key_word
-    
-    logging.info(f'Токен доступа = {ACCESS_TOKEN}')
-    
-    # Запрос списка вакансий
-    vacancies_url = "https://api.hh.ru/vacancies"
-    headers = {
-        "Authorization": f"Bearer {ACCESS_TOKEN}",
-        "Content-Type": "application/json"
-    }
-    params = {
-        "area": 1,  # ID города, например, Москва - 1
-        'employer_id': [27708],
-        # "only_with_salary": True,
-        "text": request_key_word,
-        "page": page,
-        "per_page": per_page
-    }
-    response = requests.get(vacancies_url, headers=headers, params=params)
-    if response.status_code != 200:
-        logging.error(f"Ошибка при получении списка вакансий: {response.status_code} - {response.text}")
-    else:
-        result = response.json()
-        vacancies_count = result['found']
-        logging.info(f'result = {result}\n\n')
-        
-        formatted_json = json.dumps(result['items'], ensure_ascii=False, indent=4)
-        logging.info(f'formatted_json = {formatted_json}\n\n')
-        if result['found'].__eq__(0):
-            await update.message.reply_text('К сожалению, на текущий момент подходящих вакансий нет.')
-            context.user_data['Запрос full данных'] = 'Старт'
-            context.user_data['information_form'] = {}
-            await user_full_information_process(update, context, current_text=None)
-            return
-        tight_inf = await inf_taker(result['items'])
-
-        logging.info(f'tight_inf = {tight_inf}\n\n')
-
-
-        context.user_data['vacancies_id'] = []
-        for vacancy in tight_inf:
-            vacancy_url = vacancy['Ссылка на вакансию']
-            vacancy_text = await message_creater(vacancy)
-            
-            vacancy_id = vacancy.pop('id Вакансии')
-            context.user_data['vacancies_id'].append(vacancy_id)
-            # context.user_data[vacancy_id] = vacancy_text
-            await send_inline_buttons(update, context, message_text=vacancy_text, vacancy_url=vacancy_url)
+    await inline_buttons_packed(update, context, result)
             
 
 async def message_creater(vacancy):
@@ -476,7 +391,20 @@ async def message_creater(vacancy):
 
     return vacancy_text
 
-async def get_all_company_vacancies(update, context, page=0, per_page=100):
+
+async def get_all_company_vacancies(update, context):
+    
+    result = get_all_vacancies_module()
+
+    empty_list = await check_for_empty_list(result)
+    if empty_list:
+        await user_form_create(update, context)
+        return
+
+    await inline_buttons_packed(update, context, result)
+
+
+async def update_vacancies_db(page=0, per_page=100):
     
     logging.info(f'Токен доступа = {ACCESS_TOKEN}')
     
@@ -496,35 +424,18 @@ async def get_all_company_vacancies(update, context, page=0, per_page=100):
         logging.error(f"Ошибка при получении списка вакансий: {response.status_code} - {response.text}")
     else:
         result = response.json()
-        logging.info(f'result = {result}\n\n')
-        if result['found'].__eq__(0):
-            await update.message.reply_text('К сожалению, на текущий момент подходящих вакансий нет.')
-            context.user_data['Запрос full данных'] = 'Старт'
-            context.user_data['information_form'] = {}
-            await user_full_information_process(update, context, current_text=None)
-            return
+        
         formatted_json = json.dumps(result['items'], ensure_ascii=False, indent=4)
         logging.info(f'formatted_json = {formatted_json}\n\n')
         tight_inf = await inf_taker(result['items'])
-
-        logging.info(f'tight_inf = {tight_inf}\n\n')
-
-        for vacancy in tight_inf:
-            vacancy_url = vacancy['Ссылка на вакансию']
-            vacancy_text = await message_creater(vacancy)
-            
-            await send_inline_buttons(update, context, message_text=vacancy_text, vacancy_url=vacancy_url)
-            
+        await filling_vacancies_to_db(tight_inf)
 
 
-        # await send_inline_buttons(update, context, message_text=vacancy_text, vacancy_url=vacancy_url)
-
-
-async def send_inline_buttons(update: Update, context: ContextTypes.DEFAULT_TYPE, message_text, vacancy_url) -> None:
+async def send_inline_buttons(update: Update, context: ContextTypes.DEFAULT_TYPE, message_text, vacancy_id) -> None:
     logging.info('РЕГИСТРАЦИЯ КНОПОК')
     # Создаем инлайн кнопки
     keyboard = [
-        [InlineKeyboardButton("Откликнуться", callback_data='request', url=vacancy_url)],
+        [InlineKeyboardButton("Откликнуться", callback_data=f'{vacancy_id}')],
         [InlineKeyboardButton("Получить консультацию специалиста 📞", callback_data='get_spec')],
     ]
 
@@ -596,8 +507,7 @@ async def inf_taker(full_information):
 
 async def image_download_by_url(image_url, context):
 
-    folder = r'C:/dev_py/hh_bit/bot_project/bot_architecture/downloads'
-    folder = downloads
+    folder = downloads_path
     image_name = os.path.basename(image_url)
     file_path = os.path.join(f'{folder}/', image_name)
 
