@@ -39,6 +39,10 @@ async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
 
     if query.data.__eq__('get_spec'):
         await context.bot.send_message(chat_id=user_id, text=inf_contacts_text, parse_mode='Markdown')
+    
+    elif query.data.__eq__('default_request'):
+        
+        pass
 
     else:
         
@@ -56,10 +60,18 @@ async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
 
         # Создаем новую кнопку с URL
         keyboard = [
-            
-        [InlineKeyboardButton("Ссылка на вакансию", callback_data='req_button', url=vacancy_url)],
-        [InlineKeyboardButton("Получить консультацию специалиста 📞", callback_data='get_spec')],
-    ]
+        [
+            InlineKeyboardButton("Откликнуться", callback_data=f'default_request')
+        ],
+
+        [
+            InlineKeyboardButton("Ссылка на вакансию", callback_data='req_button', url=vacancy_url)
+        ],
+
+        [
+            InlineKeyboardButton("Получить консультацию специалиста 📞", callback_data='get_spec')
+        ],
+        ]
 
         # Создаем разметку для кнопок
         reply_markup = InlineKeyboardMarkup(keyboard)

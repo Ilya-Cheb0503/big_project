@@ -435,8 +435,17 @@ async def send_inline_buttons(update: Update, context: ContextTypes.DEFAULT_TYPE
     logging.info('РЕГИСТРАЦИЯ КНОПОК')
     # Создаем инлайн кнопки
     keyboard = [
-        [InlineKeyboardButton("Откликнуться", callback_data=f'{vacancy_id}')],
-        [InlineKeyboardButton("Получить консультацию специалиста 📞", callback_data='get_spec')],
+        [
+            InlineKeyboardButton("Откликнуться", callback_data=f'default_request')
+        ],
+
+        [
+            InlineKeyboardButton("Откликнуться через hhru", callback_data=f'{vacancy_id}')
+        ],
+
+        [
+            InlineKeyboardButton("Получить консультацию специалиста 📞", callback_data='get_spec')
+        ],
     ]
 
     # Создаем разметку для кнопок
