@@ -83,6 +83,8 @@ async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
 # Функция для обработки команды /start
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     # await start_create_table()
+    if 'Запрос full данных' in context.user_data:
+        context.user_data.pop('Запрос full данных')
     user_id = update.effective_user.id
     user = await get_user_from_db(user_id)
     if not user:
