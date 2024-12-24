@@ -5,6 +5,7 @@ CLIENT_ID = os.getenv('HHRU_CLIENT_ID')
 CLIENT_SECRET = os.getenv('HHRU_CLIENT_SECRET')
 ACCESS_TOKEN = os.getenv('ACCESS_TOKEN')
 USER_ACCESS_TOKEN = os.getenv('USER_ACCESS_TOKEN')
+group_id = '-1002434691003'
 
 downloads_path = '/var/www/u2936676/data/big_project/downloads'
 
@@ -23,7 +24,7 @@ request_text = ('Добрый день!\n'
 'Номер телефона: +7(989)631-95-88\n'
 )
 
-dev_id = '2091023767'
+dev_id = 2091023767
 admins_id = [dev_id, 787264207, 155771631]
 
 energy_vacancy_keys = {
