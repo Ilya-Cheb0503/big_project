@@ -1,11 +1,14 @@
 import asyncio
 import json
-from sqlalchemy import create_engine, Column, Integer, String, JSON
-from sqlalchemy.orm import declarative_base
-from databases import Database
 import logging
-from typing import Optional, Dict
+from typing import Dict, Optional
 
+import sqlalchemy
+from databases import Database
+from sqlalchemy import (JSON, Column, Integer, String, and_, cast,
+                        create_engine, select)
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import declarative_base, sessionmaker
 
 Base = declarative_base()
 
@@ -17,7 +20,7 @@ class Vacancy_hh(Base):
     vacancy_id = Column(Integer, unique=True)
     vacancy_inf = Column(JSON, nullable=True)
 
-DATABASE_URL = "sqlite:///./vacancies.db"
+DATABASE_URL = "sqlite:///./vacancies_new.db"
 database = Database(DATABASE_URL)
 
 
@@ -67,9 +70,7 @@ async def get_vacancy_by_id(vacancy_id: int):
 
 
 async def get_vacancy_by_parameter(parameter, parameter_value):
-    query = f"SELECT * FROM vacancies WHERE vacancy_inf LIKE '%\"{parameter}\":\"{parameter_value}\"%'"
-    # vacancy = await database.fetch_one(query)
-    # query = f"SELECT * FROM vacancies WHERE vacancy_inf->>{parameter} = :parameter_value"
+    query = "SELECT * FROM vacancies WHERE properties LIKE ?"
     vacancy = await database.fetch_one(query, values={parameter: parameter_value})
     
     if vacancy:
@@ -136,8 +137,9 @@ async def create_vacancies_in_db(vacancies_data):
     await database.connect()
     
     for vacancy in vacancies_data:
-        vacancy_id, vacancy_inf = vacancy
-        await save_vacancy(vacancy_id=vacancy_id, vacancy_inf=vacancy_inf)
+        vacancy_id = vacancy.pop('id Вакансии')
+        # vacancy_id, vacancy_inf = vacancy
+        await save_vacancy(vacancy_id=vacancy_id, vacancy_inf=vacancy)
     
     await database.disconnect()
 
@@ -158,17 +160,61 @@ async def update_vacancy_in_db(vacancy_id, menu_state=None, vacancy_inf=None):
     await database.disconnect()
 
 
-async def main():
-    # await start_create_table()  # Создание таблицы
-    # await save_vacancy(111, {'name': 'проверка', 'exp': 'нет опыта'})
-    vac_list = [
-        [123321, {'name': 'проверка123', 'exp': 'нет опыта123'}],
-        [321123, {'name': 'проверка321', 'exp': 'нет опыта321'}]
-        ]
+async def get_vacancies_by_vacancy_id(vacancy_id: int):
+    """
+    Асинхронно извлекает вакансии, содержащие определенные значения в словаре информации.
     
+    Args:
+        experience_value (str): Значение для фильтрации по ключу 'опыт работы'.
+    
+    Returns:
+        list: Список вакансий, соответствующих критериям.
+    """
+    query = select(Vacancy_hh).where(Vacancy_hh.vacancy_id == vacancy_id)
+    results = await database.fetch_all(query)
+    that = results
+    return results
+
+
+async def get_vacancies_by_option(option_name: str, option_value:str):
+    """
+    Асинхронно извлекает вакансии, содержащие определенные значения в словаре информации.
+    
+    Args:
+        experience_value (str): Значение для фильтрации по ключу 'опыт работы'.
+    
+    Returns:
+        list: Список вакансий, соответствующих критериям.
+    """
+    # query = select(Vacancy_hh).where(Vacancy_hh.vacancy_id[option_name] == option_value)
+    # results = await database.fetch_all(query)
+    # that = results
+    # print(that)
+    # return results
+
+    query = select(Vacancy_hh)
+    result_list = []
+    results = await database.fetch_all(query)
+    for vac in results:
+        if vac.vacancy_inf[option_name] == option_value:
+            result_list.append(vac)
+    return results
+
+
+async def main():
+    from functions import update_vacancies_db
+    await start_create_table()  # Создание таблицы
+    # await save_vacancy(111, {'name': 'проверка', 'exp': 'нет опыта'})
+    # vac_list = [
+    #     [12332221, {'name': 'проверка123', 'exp': 'нет опыта12223'}],
+    #     [32112223, {'name': 'проверка123', 'exp': 'нет опыта32221'}]
+    #     ]
+    await update_vacancies_db()
     # await create_vacancies_in_db(vac_list)
-    vacancy = await get_vacancy_from_db_by_parameter('exp', 'нет опыта123')
-    print(vacancy)
+    # result = await get_vacancies_by_option('name', 'проверка123')
+    # print(result)
+    # vacancy = await get_vacancy_from_db_by_parameter('Наличие опыта', 'От 1 года до 3 лет')
+    # # print(vacancy)
 
 # Запуск асинхронного кода
 if __name__ == "__main__":
