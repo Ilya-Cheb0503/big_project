@@ -32,17 +32,42 @@ async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
     user_inf = user['user_inf']
     user_name = user_inf['ФИО']
 
-    if not user_inf['ФИО'] or not user_inf['Номер телефона']:
-        await user_form_create(update, context, message_text='Пожалуйста, заполните прежде ваши данные:')
-        context.user_data['запрос данных'] = True
-        await context.bot.send_message(chat_id=user_id, text=inf_example_text, parse_mode='Markdown')
+    list_keys = [
+    'Запрос full данных',
+    'Запрос анкетных данных',
+    'information_form',
+    'message_inf',
+    'message_state',
+    'current_text',
+    'photo_path',
+    'pdf_path',
+    'vacancy_name',
 
-    if query.data.__eq__('get_spec'):
+]
+    if query.data.__eq__('main_menu'):
+        for key in list_keys:
+            if key in context.user_data:
+                context.user_data.pop(key)
+        await main_start_menu(update, context)
+
+    elif 'tq' in query.data:
+        vac_id = query.data.split(';')[1]
+        int_id = int(vac_id)
+        vacancy = await get_vacancy_by_vacancy_id(int_id)
+        vacancy_name = vacancy.vacancy_inf['Вакансия']
+        context.user_data['vacancy_name'] = vacancy_name
+        context.user_data['Запрос анкетных данных'] = 'Запуск анкетирования'
+        await user_form_information_process(update, context)
+
+    elif not user_inf['ФИО'] or not user_inf['Номер телефона']:
+        context.user_data['Запрос анкетных данных'] = 'Запуск анкетирования'
+        await user_full_information_process(update, context)
+
+    elif query.data.__eq__('get_spec'):
         await context.bot.send_message(chat_id=user_id, text=inf_contacts_text, parse_mode='Markdown')
     
-    elif query.data.__eq__('default_request'):
-        
-        pass
+    
+
 
     else:
         
@@ -61,7 +86,7 @@ async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
         # Создаем новую кнопку с URL
         keyboard = [
         [
-            InlineKeyboardButton("Откликнуться", callback_data=f'default_request')
+            InlineKeyboardButton("Откликнуться", callback_data=f'tq;{int_id}')
         ],
 
         [
@@ -97,6 +122,10 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     # await start_create_table()
     if 'Запрос full данных' in context.user_data:
         context.user_data.pop('Запрос full данных')
+
+    if 'Запрос анкетных данных' in context.user_data:
+        context.user_data.pop('Запрос анкетных данных')
+
     user_id = update.effective_user.id
     user = await get_user_from_db(user_id)
     if not user:
@@ -136,6 +165,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 
 # Функция для обработки нажатий кнопок
 async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    
     current_text = update.message.text
     user_id = update.effective_user.id
     user = await get_user_from_db(user_id)
@@ -158,16 +188,22 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
 }
     if 'Запрос full данных' in context.user_data:
         await list_waiting(update, context)
+    
+
+    elif 'Запрос анкетных данных' in context.user_data:
+        await user_form_information_process(update, context)
 
 
-    elif 'запрос данных' in context.user_data:
-        await ask_user_inf(user_id, current_text)
-        context.user_data.pop('запрос данных')
-        await context.bot.send_message(chat_id=user_id, text=inf_contacts_text, parse_mode='Markdown')
+    # elif 'запрос данных' in context.user_data:
+    #     await ask_user_inf(user_id, current_text)
+    #     context.user_data.pop('запрос данных')
+    #     await context.bot.send_message(chat_id=user_id, text=inf_contacts_text, parse_mode='Markdown')
 
     else:
         current_menu = menu_list[menu_state]
         await current_menu(current_text, update, context)
+    
+    await extra_inline_button(update, context)
 
 
 async def main(telegram_bot_token) -> None:
@@ -180,7 +216,7 @@ async def main(telegram_bot_token) -> None:
     application.add_handler(CommandHandler('start', start))
     # application.add_handler(CommandHandler('buttons', send_inline_buttons))
     application.add_handler(CallbackQueryHandler(button_callback))  # Добавляем обработчик для инлайн кнопок
-    application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND | filters.PHOTO, button_handler))
+    application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND | filters.PHOTO | filters.Document.ALL, button_handler))
       # Обработчик для инлайн кнопок
 
     # Запускаем бота

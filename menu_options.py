@@ -17,9 +17,8 @@ async def user_main_menu(button_text, update, context):
             'Мои данные': list_waiting,
             'Контакты': contacts,
         }
-        if 'Запрос full данных' in context.user_data:
-            await user_full_information_process(update, context, current_text=None)(update, context)
-        elif button_text not in button_text_options:
+
+        if button_text not in button_text_options:
             if button_text.lower().__eq__('без опыта'):
                 logging.info('БЕЗ ОПЫТА')
                 await get_no_exp_vacancies(update, context)
@@ -39,9 +38,8 @@ async def admin_main_menu(button_text, update, context):
             'Контакты': contacts,
             'Панель администратора': show_admin_options
         }
-        if 'Запрос full данных' in context.user_data:
-            await user_full_information_process(update, context, current_text=None)
-        elif button_text not in button_text_options:
+
+        if button_text not in button_text_options:
             if button_text.lower().__eq__('без опыта'):
                 logging.info('БЕЗ ОПЫТА')
                 await get_no_exp_vacancies(update, context)
@@ -50,7 +48,7 @@ async def admin_main_menu(button_text, update, context):
         else:
             current_option = button_text_options[button_text]
             await current_option(update, context)
-
+        logging.info('ЗАВЕРШИЛИ ОПРЕДЕЛЕНИЕ ДЕЙСВТИЙ В МЕНЮ АДМИНА')
 
 async def admin_options_menu(button_text, update, context):
     logging.info('admin options')
@@ -194,24 +192,26 @@ async def FAQ_menu(button_text, update, context):
 
 
 async def list_waiting(update, context):
-    current_text = update.message.text
-    text_wait = (
-        'Если вы не нашли подходящей вакансии, предлагаем заполнить\n'
-        'небольшую форму и мы сообщим Вам в числе первых, когда\n'
-        'подходящая вакансия появится!'
-    )
+    logging.info('ВЫЗВАЛИ list_waitnig')
+    # current_text = update.message.text
+    # text_wait = (
+    #     'Просто отвечайте на вопросы бота,\nа он бережно соберет Ваши данные в анкету 📠'
+    # )
 
-    keyboard_cancel = [
-        ['Отмена']
-    ]
+    # keyboard_cancel = [
+    #     ['Продолжить'],
+    #     ['Назад']
+    # ]
 
-    reply_markup = ReplyKeyboardMarkup(keyboard_cancel, resize_keyboard=True)
+    # reply_markup = ReplyKeyboardMarkup(keyboard_cancel, resize_keyboard=True)
     
     if 'Запрос full данных' not in context.user_data:
-        await update.message.reply_text(text_wait, reply_markup=reply_markup)
-        context.user_data['Запрос full данных'] = 'Старт'
+        # await update.message.reply_text(text_wait, reply_markup=reply_markup)
+        context.user_data['Запрос full данных'] = 'Запуск анкетирования'
         context.user_data['information_form'] = {}
-    await user_full_information_process(update, context, current_text)
+    await user_full_information_process(update, context)
+
+    logging.info('ЗАВЕРШИЛИ list_waitnig')
 
 async def contacts(update, context):
     await update.message.reply_text(contacts_info)
