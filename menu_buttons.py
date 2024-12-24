@@ -15,17 +15,15 @@ async def main_start_menu(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
         user = await get_user_from_db(user_id)
         if user:
                 await update_user_in_db(user_id, menu_state='Меню администратора')
-                context.user_data['menu_state'] = 'Меню администратора'
         keyboard = admin_main_menu_keyboard
     else:
-        context.user_data['menu_state'] = 'Меню пользователя'
         await update_user_in_db(user_id, menu_state='Меню пользователя')
         keyboard = user_main_menu_keyboard
     # Создаем разметку клавиатуры
     reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
     
     # Отправляем сообщение с кнопками
-    await update.message.reply_text(text, reply_markup=reply_markup)
+    await context.bot.send_message(chat_id=user_id, text=text, reply_markup=reply_markup)
 
 
 async def show_admin_options(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
@@ -40,7 +38,6 @@ async def show_admin_options(update: Update, context: ContextTypes.DEFAULT_TYPE)
 async def show_vacancies(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     user_id = update.effective_user.id
     await update_user_in_db(user_id, menu_state='Меню вакансий')
-    context.user_data['menu_state'] = 'Меню вакансий'
     
     keyboard = vacancies_menu_keyboard
     reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
