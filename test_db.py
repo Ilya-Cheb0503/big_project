@@ -1,10 +1,11 @@
 import asyncio
 import json
-from sqlalchemy import create_engine, Column, Integer, String, JSON
-from sqlalchemy.orm import declarative_base
-from databases import Database
 import logging
-from typing import Optional, Dict
+from typing import Dict, Optional
+
+from databases import Database
+from sqlalchemy import JSON, Column, Integer, String, create_engine
+from sqlalchemy.orm import declarative_base
 
 # Импортируем declarative_base из sqlalchemy.orm
 Base = declarative_base()
@@ -123,10 +124,10 @@ async def update_user_in_db(telegram_id, menu_state=None, user_inf=None):
 
 
 async def main():
-    await start_create_table()  # Создание таблицы
-    await create_user(5346)
-    user = await get_user(5346)
-    print(user)
+    await start_create_table(DATABASE_URL)  # Создание таблицы
+    # await create_user(5346)
+    # user = await get_user(5346)
+    # print(user)
 
 # Запуск асинхронного кода
 if __name__ == "__main__":
