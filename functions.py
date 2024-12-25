@@ -2,6 +2,7 @@ import json
 import logging
 import os
 import re
+from time import sleep
 
 import requests
 from telegram import (InlineKeyboardButton, InlineKeyboardMarkup,
@@ -705,36 +706,54 @@ async def inline_buttons_packed(update, context, result):
 
 
 async def get_vacancies_by_keys_list(update, context, keywords):
-    result = await get_vacancies_by_keys_list_module(keywords)
+    try:
+        result = await get_vacancies_by_keys_list_module(keywords)
+    
+    except Exception as error:
+        sleep(5)
+        result = await get_vacancies_by_keys_list_module(keywords)
+    
+    else:
+        empty_list = await check_for_empty_list(result)
+        if empty_list:
+            await user_form_create(update, context)
+            return
 
-    empty_list = await check_for_empty_list(result)
-    if empty_list:
-        await user_form_create(update, context)
-        return
+        await inline_buttons_packed(update, context, result)
 
-    await inline_buttons_packed(update, context, result)
-            
 
 async def get_no_exp_vacancies(update, context):
-    result = await get_no_exp_vacancies_module()
+    try:
+        result = await get_no_exp_vacancies_module()
 
-    empty_list = await check_for_empty_list(result)
-    if empty_list:
-        await user_form_create(update, context)
-        return
+    except Exception as error:
+        sleep(5)
+        result = await get_no_exp_vacancies_module()
 
-    await inline_buttons_packed(update, context, result)
+    else:
+        empty_list = await check_for_empty_list(result)
+        if empty_list:
+            await user_form_create(update, context)
+            return
+
+        await inline_buttons_packed(update, context, result)
 
 
 async def get_vacancies_by_key_word(update, context, key_word):
-    result = await get_vacancies_by_key_word_module(key_word)
+    try:
+        result = await get_vacancies_by_key_word_module(key_word)
 
-    empty_list = await check_for_empty_list(result)
-    if empty_list:
-        await user_form_create(update, context)
-        return
+    except Exception as error:
+        sleep(5)
+        result = await get_vacancies_by_key_word_module(key_word)
 
-    await inline_buttons_packed(update, context, result)
+    else:
+        empty_list = await check_for_empty_list(result)
+        if empty_list:
+            await user_form_create(update, context)
+            return
+
+        await inline_buttons_packed(update, context, result)
             
 
 async def message_creater(vacancy):
@@ -818,15 +837,20 @@ async def message_creater(vacancy):
 
 
 async def get_all_company_vacancies(update, context):
-    
-    result = get_all_vacancies_module()
+    try:
+        result = get_all_vacancies_module()
 
-    empty_list = await check_for_empty_list(result)
-    if empty_list:
-        await user_form_create(update, context)
-        return
+    except Exception as error:
+        sleep(5)
+        result = get_all_vacancies_module()
 
-    await inline_buttons_packed(update, context, result)
+    else:
+        empty_list = await check_for_empty_list(result)
+        if empty_list:
+            await user_form_create(update, context)
+            return
+
+        await inline_buttons_packed(update, context, result)
 
 
 async def update_vacancies_db(page=0, per_page=100):
