@@ -23,7 +23,7 @@ database_update = Database(DATABASE_URL_CREATE)
 
 
 async def save_vacancy(vacancy_id: int, vacancy_inf: dict = None):
-    existing_vacancy = await get_vacancy_by_vacancy_id(vacancy_id)
+    existing_vacancy = await get_vacancy_by_vacancy_id(vacancy_id, database_update)
     if existing_vacancy:
         print(f"Вакансия с vacancy_id {vacancy_id} уже существует.")
         return
@@ -36,7 +36,7 @@ async def save_vacancy(vacancy_id: int, vacancy_inf: dict = None):
         "vacancy_id": vacancy_id,
         "vacancy_inf": json.dumps(vacancy_inf)
     }
-    await database.execute(query, values)
+    await database_update.execute(query, values)
 
 
 async def filling_vacancies_to_db(vacancies_data):
@@ -50,13 +50,13 @@ async def filling_vacancies_to_db(vacancies_data):
     await database_update.disconnect()
 
 
-async def get_vacancy_by_vacancy_id(vacancy_id: int):
-    await database.connect()
+async def get_vacancy_by_vacancy_id(vacancy_id: int, db=database):
+    await db.connect()
 
     query = select(Vacancy_hh).where(Vacancy_hh.vacancy_id == vacancy_id)
-    vacancy = await database.fetch_one(query)
+    vacancy = await db.fetch_one(query)
     
-    await database.disconnect()
+    await db.disconnect()
 
     return vacancy
 
