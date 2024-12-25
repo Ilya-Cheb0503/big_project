@@ -20,7 +20,8 @@ class Vacancy_hh(Base):
     vacancy_id = Column(Integer, unique=True)
     vacancy_inf = Column(JSON, nullable=True)
 
-DATABASE_URL = "sqlite:///./vacancies_new.db"
+DATABASE_URL_CREATE = "sqlite:///./vacancies_upd.db"
+DATABASE_URL = "sqlite:///./vacancies.db"
 database = Database(DATABASE_URL)
 
 
@@ -106,7 +107,7 @@ async def get_all_vacancys():
     return vacancy_list
 
 
-async def start_create_table():
+async def start_create_table(DATABASE_URL):
     await database.connect()
     engine = create_engine(DATABASE_URL)
     Base.metadata.create_all(engine)
@@ -203,12 +204,7 @@ async def get_vacancies_by_option(option_name: str, option_value:str):
 
 async def main():
     from functions import update_vacancies_db
-    await start_create_table()  # Создание таблицы
-    # await save_vacancy(111, {'name': 'проверка', 'exp': 'нет опыта'})
-    # vac_list = [
-    #     [12332221, {'name': 'проверка123', 'exp': 'нет опыта12223'}],
-    #     [32112223, {'name': 'проверка123', 'exp': 'нет опыта32221'}]
-    #     ]
+    await start_create_table(DATABASE_URL)
     await update_vacancies_db()
     # await create_vacancies_in_db(vac_list)
     # result = await get_vacancies_by_option('name', 'проверка123')
