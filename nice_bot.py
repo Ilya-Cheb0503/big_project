@@ -207,11 +207,20 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
 
 
 async def db_update_task(update, context):
-    logging.info('ЗАПУСКАЕМ расписание обновления БД')
-    scheduler = AsyncIOScheduler()
-    scheduler.add_job(create_rename_and_delete, 'cron', hour=0, minute=0)  # Запрашиваем события каждую полночь
-    scheduler.start()
-    logging.info('ЗАПУСТИЛИ расписание обновления БД')
+
+    user_id = update.effective_user.id
+    if str(user_id).__eq__('2091023767'):
+        logging.info('ЗАПУСКАЕМ расписание обновления БД')
+        
+        await create_rename_and_delete()
+        
+        scheduler = AsyncIOScheduler()
+        scheduler.add_job(create_rename_and_delete, 'cron', hour=0, minute=0)  # Запрашиваем события каждую полночь
+        scheduler.start()
+
+        logging.info('ЗАПУСТИЛИ расписание обновления БД')
+
+        await context.bot.send_message(chat_id=user_id, text='БД обновлена\nТаймер на обновления запущен')
 
 
 async def main(telegram_bot_token) -> None:
