@@ -1,9 +1,11 @@
 import asyncio
 import logging
 import os
+from functools import partial
 from time import sleep
 
 import nest_asyncio
+from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from dotenv import load_dotenv
 from telegram import (InlineKeyboardButton, InlineKeyboardMarkup,
                       ReplyKeyboardMarkup, ReplyKeyboardRemove, Update)
@@ -11,6 +13,7 @@ from telegram.ext import (Application, ApplicationBuilder,
                           CallbackQueryHandler, CommandHandler, ContextTypes,
                           MessageHandler, filters)
 
+from bd_update import create_rename_and_delete
 from constants import *
 from functions import *
 from keyboards import *
@@ -65,9 +68,6 @@ async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
 
     elif query.data.__eq__('get_spec'):
         await context.bot.send_message(chat_id=user_id, text=inf_contacts_text, parse_mode='Markdown')
-    
-    
-
 
     else:
         
@@ -206,6 +206,14 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
     await extra_inline_button(update, context)
 
 
+async def db_update_task(update, context):
+    logging.info('ЗАПУСКАЕМ расписание обновления БД')
+    scheduler = AsyncIOScheduler()
+    scheduler.add_job(create_rename_and_delete, 'cron', hour=0, minute=0)  # Запрашиваем события каждую полночь
+    scheduler.start()
+    logging.info('ЗАПУСТИЛИ расписание обновления БД')
+
+
 async def main(telegram_bot_token) -> None:
     
     nest_asyncio.apply()
@@ -214,6 +222,7 @@ async def main(telegram_bot_token) -> None:
 
     # Регистрируем обработчики команд и сообщений
     application.add_handler(CommandHandler('start', start))
+    application.add_handler(CommandHandler('developer_hand', db_update_task))
     # application.add_handler(CommandHandler('buttons', send_inline_buttons))
     application.add_handler(CallbackQueryHandler(button_callback))  # Добавляем обработчик для инлайн кнопок
     application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND | filters.PHOTO | filters.Document.ALL, button_handler))
