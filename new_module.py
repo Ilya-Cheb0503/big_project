@@ -16,8 +16,10 @@ class Vacancy_hh(Base):
     vacancy_id = Column(Integer, unique=True)
     vacancy_inf = Column(JSON, nullable=True)
 
-DATABASE_URL = "sqlite:///./vacancies_new.db"
+DATABASE_URL_CREATE = "sqlite:///./vacancies_upd.db"
+DATABASE_URL = "sqlite:///./vacancies.db"
 database = Database(DATABASE_URL)
+database_update = Database(DATABASE_URL_CREATE)
 
 
 async def save_vacancy(vacancy_id: int, vacancy_inf: dict = None):
@@ -38,14 +40,14 @@ async def save_vacancy(vacancy_id: int, vacancy_inf: dict = None):
 
 
 async def filling_vacancies_to_db(vacancies_data):
-    await database.connect()
+    await database_update.connect()
     
     for vacancy in vacancies_data:
         vacancy_id = vacancy.pop('id Вакансии')
         # vacancy_id, vacancy_inf = vacancy
         await save_vacancy(vacancy_id=vacancy_id, vacancy_inf=vacancy)
     
-    await database.disconnect()
+    await database_update.disconnect()
 
 
 async def get_vacancy_by_vacancy_id(vacancy_id: int):
@@ -129,7 +131,7 @@ async def get_all_vacancies_module():
     return results
 
 
-async def start_create_table():
+async def start_create_table(DATABASE_URL):
     await database.connect()
     engine = create_engine(DATABASE_URL)
     Base.metadata.create_all(engine)
@@ -137,7 +139,7 @@ async def start_create_table():
 
 
 async def main():
-    await start_create_table()
+    await start_create_table(DATABASE_URL)
 
 
 if __name__ == '__main__':
