@@ -54,6 +54,8 @@ async def user_form_information_process(update: Update, context: ContextTypes.DE
 
         'Проверка анкеты': ('Утверждение найденной анкеты', None),
         'Утверждение найденной анкеты': ('done', None),
+        'Доп резюме вопрос': ('Доп pdf файл', None),
+        'Доп pdf файл': ('Резюме', None),
         
         'Резюме': ('Номер телефона', 'Ваш контактный номер телефона:'),
         'Номер телефона': ('Должность', 'Желаемая должность:'),
@@ -69,7 +71,6 @@ async def user_form_information_process(update: Update, context: ContextTypes.DE
 
     current_step = context.user_data['Запрос анкетных данных']
 
-    logging.info(f'ВОТ ТАКОЙ НАХУЙ ШАГ СЕЙЧАС  = {current_step} и вот такой нахуй текст {current_text}')
     if current_text == 'Главное меню' or current_text == 'Назад':
         context.user_data.pop('Запрос анкетных данных')
         await main_start_menu(update, context)
@@ -91,7 +92,7 @@ async def user_form_information_process(update: Update, context: ContextTypes.DE
     )
 
         keyboard = [
-            ['Продолжить'],
+            ['Согласен с политикой обработки персональных данных ✅'],
             ['Назад']
         ]
 
@@ -171,6 +172,52 @@ async def user_form_information_process(update: Update, context: ContextTypes.DE
         reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
         await update.message.reply_text(text, reply_markup=reply_markup)
 
+    elif current_step.__eq__('Доп резюме вопрос'):
+        
+        if current_text.__eq__('Да'):
+            context.user_data['Запрос анкетных данных'] = 'Доп pdf файл'
+            text = 'Пожалуйста, пришлите ваше резюме в формате .pdf'
+            keyboard = [
+                ['Главное меню'],
+            ]
+
+            reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
+            await update.message.reply_text(text, reply_markup=reply_markup)
+
+        elif current_text.__eq__('Нет'):
+            context.user_data['Запрос анкетных данных'] = 'Номер телефона'
+            text = 'Ваш контактный номер телефона:'
+            keyboard = [
+                ['Главное меню'],
+            ]
+            reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
+            await update.message.reply_text(text, reply_markup=reply_markup)
+    
+
+    elif current_step.__eq__('Доп pdf файл'):
+        document = update.message.document
+        file_name = document.file_name
+        if not file_name.lower().endswith('.pdf'):
+            update.message.reply_text('Ошибка: файл должен быть в формате PDF.')
+            
+            context.user_data['Запрос анкетных данных'] = 'Доп pdf файл'
+            
+        # Получаем файл
+        new_file = await context.bot.get_file(document.file_id)
+        file_path = f"{downloads_path}/{file_name}.pdf"
+        context.user_data['pdf_path'] = file_path
+        await new_file.download_to_drive(file_path)
+
+        text = 'Резюме успешно загруженно.\nУкажите Ваш контактный номер телефона:'
+        context.user_data['Запрос анкетных данных'] = 'Номер телефона'
+        keyboard = [
+            ['Главное меню'],
+        ]
+        reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
+        await update.message.reply_text(text, reply_markup=reply_markup)
+    
+
+
     elif current_step.__eq__('Проверка анкеты'):
 
         if 'Образование' in user_inf_db:
@@ -216,13 +263,26 @@ async def user_form_information_process(update: Update, context: ContextTypes.DE
             await main_start_menu(update, context)
 
         elif current_text.__eq__('Заполнить заново'):
-            context.user_data['Запрос анкетных данных'] = 'Номер телефона'
-            text = 'Ваш контактный номер телефона:'
+
+
+            context.user_data['Запрос анкетных данных'] = 'Доп резюме вопрос'
+            text = 'Хотите прикрепить резюме?'
             keyboard = [
-                ['Главное меню'],
-            ]
+                    ['Да'],
+                    ['Нет'],
+                ]
+
             reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
-            await update.message.reply_text(text, reply_markup=reply_markup)
+            await context.bot.send_message(chat_id=user_id, text=text, reply_markup=reply_markup)
+
+
+            # context.user_data['Запрос анкетных данных'] = 'Номер телефона'
+            # text = 'Ваш контактный номер телефона:'
+            # keyboard = [
+            #     ['Главное меню'],
+            # ]
+            # reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
+            # await update.message.reply_text(text, reply_markup=reply_markup)
 
 
     elif next_step.__eq__('Должность'):
