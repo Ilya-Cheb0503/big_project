@@ -851,11 +851,11 @@ async def message_creater(vacancy):
 
 async def get_all_company_vacancies(update, context):
     try:
-        result = get_all_vacancies_module()
+        result = await get_all_vacancies_module()
 
     except Exception as error:
         sleep(5)
-        result = get_all_vacancies_module()
+        result = await get_all_vacancies_module()
 
     else:
         empty_list = await check_for_empty_list(result)
