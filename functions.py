@@ -681,6 +681,7 @@ async def user_form_create(update, context, message_text=None):
         ['Продолжить'],
         ['Назад']
     ]
+    
     if message_text == None:
         message_text = (
             'К сожалению, на текущий момент подходящих вакансий нет.\n'
@@ -716,7 +717,11 @@ async def get_vacancies_by_keys_list(update, context, keywords):
     else:
         empty_list = await check_for_empty_list(result)
         if empty_list:
-            await user_form_create(update, context)
+            text = (
+            'К сожалению, на текущий момент подходящих вакансий нет.\n'
+            'Сформировать новый запрос.\n'
+        )
+            await update.message.reply_text(text)
             return
 
         await inline_buttons_packed(update, context, result)
@@ -733,7 +738,11 @@ async def get_no_exp_vacancies(update, context):
     else:
         empty_list = await check_for_empty_list(result)
         if empty_list:
-            await user_form_create(update, context)
+            text = (
+            'К сожалению, на текущий момент подходящих вакансий нет.\n'
+            'Сформировать новый запрос.\n'
+        )
+            await update.message.reply_text(text)
             return
 
         await inline_buttons_packed(update, context, result)
@@ -750,7 +759,11 @@ async def get_vacancies_by_key_word(update, context, key_word):
     else:
         empty_list = await check_for_empty_list(result)
         if empty_list:
-            await user_form_create(update, context)
+            text = (
+            'К сожалению, на текущий момент подходящих вакансий нет.\n'
+            'Сформировать новый запрос.\n'
+        )
+            await update.message.reply_text(text)
             return
 
         await inline_buttons_packed(update, context, result)
@@ -847,7 +860,11 @@ async def get_all_company_vacancies(update, context):
     else:
         empty_list = await check_for_empty_list(result)
         if empty_list:
-            await user_form_create(update, context)
+            text = (
+            'К сожалению, на текущий момент подходящих вакансий нет.\n'
+            'Сформировать новый запрос.\n'
+        )
+            await update.message.reply_text(text)
             return
 
         await inline_buttons_packed(update, context, result)
