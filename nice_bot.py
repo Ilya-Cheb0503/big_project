@@ -1,17 +1,15 @@
 import asyncio
 import logging
 import os
-from functools import partial
 from time import sleep
 
 import nest_asyncio
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from dotenv import load_dotenv
 from telegram import (InlineKeyboardButton, InlineKeyboardMarkup,
-                      ReplyKeyboardMarkup, ReplyKeyboardRemove, Update)
-from telegram.ext import (Application, ApplicationBuilder,
-                          CallbackQueryHandler, CommandHandler, ContextTypes,
-                          MessageHandler, filters)
+                      ReplyKeyboardMarkup, Update)
+from telegram.ext import (Application, CallbackQueryHandler, CommandHandler,
+                          ContextTypes, MessageHandler, filters)
 
 from bd_update import create_rename_and_delete
 from constants import *
@@ -20,9 +18,9 @@ from keyboards import *
 from menu_buttons import *
 from menu_options import *
 from new_module import *
+from options_inline_list import *
 from settings import *
-from test_db import (User_tg, creat_user_in_db, get_user_from_db,
-                     start_create_table, update_user_in_db)
+from test_db import creat_user_in_db, get_user_from_db, update_user_in_db
 
 
 async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
@@ -34,26 +32,80 @@ async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
     user = await get_user_from_db(user_id)
     user_inf = user['user_inf']
     user_name = user_inf['ФИО']
+    
+    buttons_calling_data = query.data
 
-    list_keys = [
-    'Запрос full данных',
-    'Запрос анкетных данных',
-    'information_form',
-    'message_inf',
-    'message_state',
-    'current_text',
-    'photo_path',
-    'pdf_path',
-    'vacancy_name',
 
-]
-    if query.data.__eq__('main_menu'):
-        for key in list_keys:
-            if key in context.user_data:
-                context.user_data.pop(key)
-        await main_start_menu(update, context)
+    # мы реагируем на нажатие определенной кнопки, а не сообщение, поэтому не важен порядок определения *на подумать
+    if buttons_calling_data.__eq__('user_data'):
+        await list_waiting(update, context)
+    elif buttons_calling_data.__eq__('postman'):
+        await send_messages(update, context)
 
-    elif 'tq' in query.data:
+    elif buttons_calling_data in power_request_translater.keys():
+        first_key = power_request_translater[buttons_calling_data]
+        promt_keys = energy_vacancy_keys[first_key]
+        await get_vacancies_by_keys_list(update, context, promt_keys)
+
+    elif buttons_calling_data in ofice_request_translater.keys():
+        first_key = ofice_request_translater[buttons_calling_data]
+        promt_keys = ofice_vacancy_keys[first_key]
+        await get_vacancies_by_keys_list(update, context, promt_keys)
+    
+    elif buttons_calling_data.__eq__('no_exp'):
+        await get_no_exp_vacancies(update, context)
+    
+    elif buttons_calling_data.__eq__('show_all'):
+        current_count = await get_vacancy_count()
+        warning_text = (
+        'Внимание‼️\n\n'
+        f'Актуальных вакансий сейчас: {current_count}\n\n'
+        'Вы точно уверены, что хотите посмотреть все вакансии?')
+        keyboard = [
+            [InlineKeyboardButton(text = 'Рискну', callback_data = 'risk')],
+            [InlineKeyboardButton(text = 'Главное меню', callback_data = 'main_menu')]
+        ]
+        reply_markup = InlineKeyboardMarkup(keyboard)
+        await query.edit_message_text(text=warning_text, reply_markup=reply_markup)
+
+
+    elif buttons_calling_data.__eq__('risk'):
+        await get_all_company_vacancies(update, context)
+
+
+    elif buttons_calling_data in but_opt.keys():
+        menu = buttons_calling_data == 'main_menu'
+        message_text, buttons_set = but_opt[buttons_calling_data]
+        if menu and 'admin_status' in context.user_data:
+            buttons_set = buttons_set[1]
+        elif menu:
+            buttons_set = buttons_set[0]
+
+        if buttons_set:
+            keyboard = []
+            for button in buttons_set:
+                
+                if all(isinstance(element, str) for element in button):
+                    button_name, button_data = button
+                    keyboard.append(
+                        [InlineKeyboardButton(text = button_name, callback_data = button_data)]
+                    )
+                else:
+                    
+                    next_button_row = []
+                    for element in button:
+                        button_name, button_data = element
+                        next_button_row.append(
+                            InlineKeyboardButton(text = button_name, callback_data = button_data)
+                        )
+                    keyboard.append(next_button_row)
+            reply_markup = InlineKeyboardMarkup(keyboard)
+            await query.edit_message_text(text=message_text, reply_markup=reply_markup)
+        else:
+            current_keyboard = query.message.reply_markup
+            await query.edit_message_text(text=message_text, reply_markup=current_keyboard)
+
+    elif 'tq' in buttons_calling_data:
         vac_id = query.data.split(';')[1]
         int_id = int(vac_id)
         vacancy = await get_vacancy_by_vacancy_id(int_id)
@@ -66,12 +118,12 @@ async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
         context.user_data['Запрос анкетных данных'] = 'Запуск анкетирования'
         await user_full_information_process(update, context)
 
-    elif query.data.__eq__('get_spec'):
+    elif buttons_calling_data.__eq__('get_spec'):
         await context.bot.send_message(chat_id=user_id, text=inf_contacts_text, parse_mode='Markdown')
 
     else:
         
-        int_id = int(query.data)
+        int_id = int(buttons_calling_data)
         vacancy = await get_vacancy_by_vacancy_id(int_id)
         vacancy_url = vacancy.vacancy_inf['Ссылка на вакансию']
         vacancy_name = vacancy.vacancy_inf['Вакансия']
@@ -88,24 +140,16 @@ async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
         [
             InlineKeyboardButton("Откликнуться", callback_data=f'tq;{int_id}')
         ],
-
         [
             InlineKeyboardButton("Ссылка на вакансию", callback_data='req_button', url=vacancy_url)
         ],
-
         [
             InlineKeyboardButton("Получить консультацию специалиста 📞", callback_data='get_spec')
         ],
         ]
-
-        # Создаем разметку для кнопок
         reply_markup = InlineKeyboardMarkup(keyboard)
-
-        # Обновляем сообщение с новой клавиатурой
         await context.bot.edit_message_reply_markup(chat_id=query.from_user.id, message_id=query.message.message_id, reply_markup=reply_markup)
 
-
-        # await context.bot.send_message(query.from_user.id, "https://example.com")
         vacancion_name = query.data.split(';')[1]
         user = await get_user_from_db(user_id)
         user_inf = user['user_inf']
@@ -113,12 +157,13 @@ async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
         logging.info(f'IMPOOOOORTANT {vacancion_name}')
         note_text = f'Пользователь: {user_name}\nОткликнулся на вакансию: {vacancion_name}'
         if 'ФИО' and 'Образование' in user_inf:
-            logging.info(f'SEEEENDING {vacancion_name}')
             await context.bot.send_message(chat_id=group_id, text=note_text, parse_mode='HTML')
 
 
 # Функция для обработки команды /start
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+
+    
     # await start_create_table()
     if 'Запрос full данных' in context.user_data:
         context.user_data.pop('Запрос full данных')
@@ -131,79 +176,87 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     if not user:
         await creat_user_in_db(user_id)
     
+    keyboard = [
+        ['Главное меню'],
+    ]
+    reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
+    
     # if admin_authenticated.get(user_id, False):
     if user_id in admins_id:
         await update_user_in_db(user_id, menu_state='Меню администратора')
         text = welcome_text 
-
-        keyboard = admin_main_menu_keyboard
-        
-        # Создаем разметку клавиатуры
-        reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
-        
-        # Отправляем сообщение с кнопками
-        await update.message.reply_text(text, reply_markup=reply_markup)
+        context.user_data['admin_status'] = True
+        await set_inline_keyboard(update, context, buttons_list = admin_main_menu_keyboard, message_text = text)
 
         sleep(0.5)
-        await context.bot.send_message(chat_id=user_id, text=welcome_two, parse_mode='Markdown')
+        await context.bot.send_message(chat_id=user_id, text=welcome_two, parse_mode='Markdown', reply_markup=reply_markup)
 
     else:
         await update_user_in_db(user_id, menu_state='Меню пользователя')
 
-        keyboard = user_main_menu_keyboard
-        
-        # Создаем разметку клавиатуры
-        reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
-    
-        # Отправляем сообщение с кнопками
-    
-        await update.message.reply_text(welcome_text, reply_markup=reply_markup)
+        await set_inline_keyboard(update, context, buttons_list = user_main_menu_keyboard, message_text = text)
 
         sleep(0.5)
-        await context.bot.send_message(chat_id=user_id, text=welcome_two, parse_mode='Markdown')
+        await context.bot.send_message(chat_id=user_id, text=welcome_two, parse_mode='Markdown', reply_markup=reply_markup)
 
 
 # Функция для обработки нажатий кнопок
 async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     
-    current_text = update.message.text
-    user_id = update.effective_user.id
-    user = await get_user_from_db(user_id)
-    if user:
-        menu_state = user['menu_state']
+    list_keys = [
+    'Запрос full данных',
+    'Запрос анкетных данных',
+    'information_form',
+    'message_inf',
+    'message_state',
+    'current_text',
+    'photo_path',
+    'pdf_path',
+    'vacancy_name',
 
-    logging.info(f'inf: {current_text}, {menu_state}')
-    menu_list = {
-    'Меню пользователя': user_main_menu,
-    'Меню администратора': admin_main_menu,
-    'Панель администратора': admin_options_menu,
-    'Меню вакансий': vacancies_menu,
-    'SURE?': vacancies_menu,
-    'Меню категорий': categories_menu,
-    'Меню вакансий ТЭЦ': power_vacancies_menu,
-    'Меню вакансий офис': office_vacancies_menu,
-    'О компании': about_company_menu,
-    'Мотивационные программы': motivations_programms_menu,
-    'Частые вопросы': FAQ_menu,
-}
-    if 'Запрос full данных' in context.user_data:
-        await list_waiting(update, context)
+]
+
+    user_id = update.effective_user.id
+    current_text = update.message.text
     
+    admin_check = user_id in admins_id
+    if admin_check:
+        context.user_data['admin_status'] = True
+
+    if update.message.photo:
+        if 'message_state' in context.user_data:
+            await send_messages(update, context)
+    elif update.message.document:
+        if 'Запрос анкетных данных' in context.user_data:
+            await user_form_information_process(update, context)
+
+
+    elif current_text.__eq__('Главное меню'):
+
+        for key in list_keys:
+            if key in context.user_data:
+                context.user_data.pop(key)
+
+        if admin_check:
+            await set_inline_keyboard(update, context, buttons_list = admin_main_menu_keyboard, message_text = welcome_text)
+
+        else:
+            await set_inline_keyboard(update, context, buttons_list = user_main_menu_keyboard, message_text = welcome_text)
+    
+    elif 'message_state' in context.user_data:
+            await send_messages(update, context)
+
+    elif 'Запрос full данных' in context.user_data:
+        await list_waiting(update, context)
 
     elif 'Запрос анкетных данных' in context.user_data:
         await user_form_information_process(update, context)
 
-
-    # elif 'запрос данных' in context.user_data:
-    #     await ask_user_inf(user_id, current_text)
-    #     context.user_data.pop('запрос данных')
-    #     await context.bot.send_message(chat_id=user_id, text=inf_contacts_text, parse_mode='Markdown')
-
+    elif current_text.lower().__eq__('без опыта'):
+        logging.info('БЕЗ ОПЫТА')
+        await get_no_exp_vacancies(update, context)
     else:
-        current_menu = menu_list[menu_state]
-        await current_menu(current_text, update, context)
-    
-    await extra_inline_button(update, context)
+        await get_vacancies_by_key_word(update, context, current_text)
 
 
 async def db_update_task(update, context):

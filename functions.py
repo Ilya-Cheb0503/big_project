@@ -6,7 +6,7 @@ from time import sleep
 
 import requests
 from telegram import (InlineKeyboardButton, InlineKeyboardMarkup,
-                      ReplyKeyboardMarkup, ReplyKeyboardRemove, Update)
+                      ReplyKeyboardMarkup, Update)
 from telegram.ext import ContextTypes
 
 from constants import *
@@ -73,9 +73,24 @@ async def user_form_information_process(update: Update, context: ContextTypes.DE
     current_step = context.user_data['Запрос анкетных данных']
 
     if current_text == 'Главное меню' or current_text == 'Назад':
+        
+        context.user_data['Запрос анкетных данных'] = 'Запуск анкетирования'
         context.user_data.pop('Запрос анкетных данных')
-        await main_start_menu(update, context)
-        return 
+        
+        admin_check = user_id in admins_id
+        if admin_check:
+            context.user_data['admin_status'] = True
+            buttons_list = admin_main_menu_keyboard
+        else:
+            buttons_list = user_main_menu_keyboard
+
+        keyboard = [
+            ['Главное меню'],
+        ]
+        reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
+        await update.message.reply_text('Возвращаем вас в главное меню', reply_markup=reply_markup)
+        await set_inline_keyboard(update, context, buttons_list = buttons_list, message_text = welcome_text)
+        return
     
     if current_step in save_steps:
         context.user_data['information_form'][current_step] = current_text
@@ -129,7 +144,7 @@ async def user_form_information_process(update: Update, context: ContextTypes.DE
             ]
 
             reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
-            await update.message.reply_text(text, reply_markup=reply_markup)
+            await context.bot.send_message(chat_id=user_id, text=text, reply_markup=reply_markup)
 
         elif current_text.__eq__('Нет'):
             if 'Образование' in user_inf_db:
@@ -140,7 +155,7 @@ async def user_form_information_process(update: Update, context: ContextTypes.DE
                 ]
                 context.user_data['Запрос анкетных данных'] = 'Утверждение найденной анкеты'
                 reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
-                await update.message.reply_text(message_text, reply_markup=reply_markup)
+                await context.bot.send_message(chat_id=user_id, text=message_text, reply_markup=reply_markup)
             else:
                 context.user_data['Запрос анкетных данных'] = 'Номер телефона'
                 text = 'Ваш контактный номер телефона:'
@@ -148,13 +163,13 @@ async def user_form_information_process(update: Update, context: ContextTypes.DE
                     ['Главное меню'],
                 ]
                 reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
-                await update.message.reply_text(text, reply_markup=reply_markup)
+                await context.bot.send_message(chat_id=user_id, text=text, reply_markup=reply_markup)
 
     elif current_step.__eq__('Проверка pdf файла'):
         document = update.message.document
         file_name = document.file_name
         if not file_name.lower().endswith('.pdf'):
-            update.message.reply_text('Ошибка: файл должен быть в формате PDF.')
+            await context.bot.send_message(chat_id=user_id, text='Ошибка: файл должен быть в формате PDF.', reply_markup=reply_markup)
             
             context.user_data['Запрос анкетных данных'] = 'Проверка pdf файла'
             
@@ -171,7 +186,7 @@ async def user_form_information_process(update: Update, context: ContextTypes.DE
             ]
         context.user_data['Запрос анкетных данных'] = 'Проверка анкеты'
         reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
-        await update.message.reply_text(text, reply_markup=reply_markup)
+        await context.bot.send_message(chat_id=user_id, text=text, reply_markup=reply_markup)
 
     elif current_step.__eq__('Доп резюме вопрос'):
         
@@ -183,7 +198,7 @@ async def user_form_information_process(update: Update, context: ContextTypes.DE
             ]
 
             reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
-            await update.message.reply_text(text, reply_markup=reply_markup)
+            await context.bot.send_message(chat_id=user_id, text=text, reply_markup=reply_markup)
 
         elif current_text.__eq__('Нет'):
             context.user_data['Запрос анкетных данных'] = 'Номер телефона'
@@ -192,14 +207,14 @@ async def user_form_information_process(update: Update, context: ContextTypes.DE
                 ['Главное меню'],
             ]
             reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
-            await update.message.reply_text(text, reply_markup=reply_markup)
+            await context.bot.send_message(chat_id=user_id, text=text, reply_markup=reply_markup)
     
 
     elif current_step.__eq__('Доп pdf файл'):
         document = update.message.document
         file_name = document.file_name
         if not file_name.lower().endswith('.pdf'):
-            update.message.reply_text('Ошибка: файл должен быть в формате PDF.')
+            await context.bot.send_message(chat_id=user_id, text='Ошибка: файл должен быть в формате PDF.')
             
             context.user_data['Запрос анкетных данных'] = 'Доп pdf файл'
             
@@ -215,7 +230,7 @@ async def user_form_information_process(update: Update, context: ContextTypes.DE
             ['Главное меню'],
         ]
         reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
-        await update.message.reply_text(text, reply_markup=reply_markup)
+        await context.bot.send_message(chat_id=user_id, text=text, reply_markup=reply_markup)
     
 
 
@@ -228,7 +243,7 @@ async def user_form_information_process(update: Update, context: ContextTypes.DE
                 ['Заполнить заново']
             ]
             reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
-            await update.message.reply_text(message_text, reply_markup=reply_markup)
+            await context.bot.send_message(chat_id=user_id, text=message_text, reply_markup=reply_markup)
         else:
             context.user_data['Запрос анкетных данных'] = 'Номер телефона'
             text = 'Ваш контактный номер телефона:'
@@ -236,7 +251,7 @@ async def user_form_information_process(update: Update, context: ContextTypes.DE
                 ['Главное меню'],
             ]
             reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
-            await update.message.reply_text(text, reply_markup=reply_markup)
+            await context.bot.send_message(chat_id=user_id, text=text, reply_markup=reply_markup)
 
     elif current_step.__eq__('Утверждение найденной анкеты'):
         ch = current_text.__eq__('Продолжить с моими данными')
@@ -253,9 +268,13 @@ async def user_form_information_process(update: Update, context: ContextTypes.DE
             user_name = user_inf['ФИО']
             vacancion_name = context.user_data['vacancy_name']
             note_text = f'Пользователь: {user_name}\nОткликнулся на вакансию: {vacancion_name}'
-            
 
-            await update.message.reply_text(final_text)
+            keyboard = [
+                ['Главное меню'],
+            ]
+            reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True)            
+
+            await extra_inline_button(update, context, final_text,)
             await context.bot.send_message(chat_id=group_id, text=note_text)
             
             if 'pdf_path' in context.user_data:
@@ -266,24 +285,13 @@ async def user_form_information_process(update: Update, context: ContextTypes.DE
         elif current_text.__eq__('Заполнить заново'):
 
 
-            context.user_data['Запрос анкетных данных'] = 'Доп резюме вопрос'
-            text = 'Хотите прикрепить резюме?'
+            context.user_data['Запрос анкетных данных'] = 'Номер телефона'
+            text = 'Ваш контактный номер телефона:'
             keyboard = [
-                    ['Да'],
-                    ['Нет'],
-                ]
-
+                ['Главное меню'],
+            ]
             reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
             await context.bot.send_message(chat_id=user_id, text=text, reply_markup=reply_markup)
-
-
-            # context.user_data['Запрос анкетных данных'] = 'Номер телефона'
-            # text = 'Ваш контактный номер телефона:'
-            # keyboard = [
-            #     ['Главное меню'],
-            # ]
-            # reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
-            # await update.message.reply_text(text, reply_markup=reply_markup)
 
 
     elif next_step.__eq__('Должность'):
@@ -318,7 +326,7 @@ async def user_form_information_process(update: Update, context: ContextTypes.DE
 
     ]
         reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
-        await update.message.reply_text(text, reply_markup=reply_markup)
+        await context.bot.send_message(chat_id=user_id, text=text, reply_markup=reply_markup)
     
     elif next_step.__eq__('Подтверждение'):
         keyboard = [
@@ -341,7 +349,7 @@ async def user_form_information_process(update: Update, context: ContextTypes.DE
             )
         logging.info(user_bio)
         reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
-        await update.message.reply_text(user_bio, reply_markup=reply_markup, parse_mode='HTML')
+        await context.bot.send_message(chat_id=user_id, text=user_bio, reply_markup=reply_markup, parse_mode='HTML')
     
     elif current_step.__eq__('Подтверждение'):
         if current_text.__eq__('Всё верно!✅'):
@@ -358,7 +366,14 @@ async def user_form_information_process(update: Update, context: ContextTypes.DE
                 'Если вам не терпится связаться с нами, то напишите нам на почту rabota@mosenergo.ru\n\n'
                 'Или позвоните по номеру +7 (495) 957-19-57, доб. 4006'
             )
-            await context.bot.send_message(chat_id=user_id, text=final_text, parse_mode='Markdown')
+
+            keyboard = [
+                ['Главное меню'],
+            ]
+
+            reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
+
+            await extra_inline_button(update, context, final_text, user_id=user_id, parse_mode='Markdown')
 
             user_inf = user['user_inf']
             user_name = user_inf['ФИО']
@@ -377,11 +392,16 @@ async def user_form_information_process(update: Update, context: ContextTypes.DE
                 ['Главное меню'],
             ]
             reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
-            await update.message.reply_text('Тогда начнем сначала.\nУкажите ваши ФИО:', reply_markup=reply_markup)
+            await context.bot.send_message(chat_id=user_id, text='Тогда начнем сначала.\nУкажите ваши ФИО:', reply_markup=reply_markup)
 
 
 async def user_full_information_process(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    current_text = update.message.text
+    if update.message:
+        current_text = update.message.text
+        current_step = context.user_data['Запрос full данных']
+    else:
+        current_text = None
+        current_step = 'Запуск анкетирования'
     user_id = update.effective_user.id
     step = {
         'Запуск анкетирования': ('Старт', 'Просто отвечайте на вопросы бота,\nа он бережно соберет Ваши данные в анкету 📠'),
@@ -399,12 +419,26 @@ async def user_full_information_process(update: Update, context: ContextTypes.DE
     save_steps = [
         'ФИО', 'Номер телефона', 'Должность', 'Опыт работы', 'Образование'
         ]
-    current_step = context.user_data['Запрос full данных']
+    
     
     logging.info(f'current_text = {current_text}')
     if current_text == 'Главное меню' or current_text == 'Назад':
+        context.user_data['Запрос full данных'] = 'Запуск анкетирования'
         context.user_data.pop('Запрос full данных')
-        await main_start_menu(update, context)
+        
+        admin_check = user_id in admins_id
+        if admin_check:
+            context.user_data['admin_status'] = True
+            buttons_list = admin_main_menu_keyboard
+        else:
+            buttons_list = user_main_menu_keyboard
+
+        keyboard = [
+            ['Главное меню'],
+        ]
+        reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
+        await context.bot.send_message(chat_id=user_id, text='Возвращаем вас в главное меню', reply_markup=reply_markup)
+        await set_inline_keyboard(update, context, buttons_list = buttons_list, message_text = welcome_text)
         return
 
     if current_step in save_steps:
@@ -438,8 +472,25 @@ async def user_full_information_process(update: Update, context: ContextTypes.DE
             ]
 
             reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
-            await update.message.reply_text(text, reply_markup=reply_markup)
-    
+            await context.bot.send_message(chat_id=user_id, text=text, reply_markup=reply_markup)
+
+        else:
+            context.user_data['Запрос full данных'] = 'Запуск анкетирования'
+            context.user_data.pop('Запрос full данных')
+            
+            admin_check = user_id in admins_id
+            if admin_check:
+                context.user_data['admin_status'] = True
+                buttons_list = admin_main_menu_keyboard
+            else:
+                buttons_list = user_main_menu_keyboard
+
+            keyboard = [
+                ['Главное меню'],
+            ]
+            reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
+            await context.bot.send_message(chat_id=user_id, text='Возвращаем вас в главное меню', reply_markup=reply_markup)
+            await set_inline_keyboard(update, context, buttons_list = buttons_list, message_text = welcome_text)
 
     elif next_step.__eq__('Номер телефона'):
         logging.info(f'ТЕКУЩИЙ ШАГ {current_step} а текст сообщения {current_text}')
@@ -449,7 +500,7 @@ async def user_full_information_process(update: Update, context: ContextTypes.DE
         ]
 
         reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
-        await update.message.reply_text(text, reply_markup=reply_markup)
+        await context.bot.send_message(chat_id=user_id, text=text, reply_markup=reply_markup)
     
 
     elif next_step.__eq__('Должность'):
@@ -460,7 +511,7 @@ async def user_full_information_process(update: Update, context: ContextTypes.DE
         ]
 
         reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
-        await update.message.reply_text(text, reply_markup=reply_markup)
+        await context.bot.send_message(chat_id=user_id, text=text, reply_markup=reply_markup)
     
 
     elif next_step.__eq__('Опыт работы'):
@@ -475,7 +526,7 @@ async def user_full_information_process(update: Update, context: ContextTypes.DE
         ]
 
         reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
-        await update.message.reply_text(text, reply_markup=reply_markup)
+        await context.bot.send_message(chat_id=user_id, text=text, reply_markup=reply_markup)
     
     elif next_step.__eq__('Образование'):
         logging.info(f'ТЕКУЩИЙ ШАГ {current_step} а текст сообщения {current_text}')
@@ -487,7 +538,7 @@ async def user_full_information_process(update: Update, context: ContextTypes.DE
 
     ]
         reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
-        await update.message.reply_text(text, reply_markup=reply_markup)
+        await context.bot.send_message(chat_id=user_id, text=text, reply_markup=reply_markup)
 
 
     elif next_step.__eq__('Подтверждение'):
@@ -513,10 +564,16 @@ async def user_full_information_process(update: Update, context: ContextTypes.DE
             )
         
         reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
-        await update.message.reply_text(user_bio, reply_markup=reply_markup, parse_mode='HTML')
+        await context.bot.send_message(chat_id=user_id, text=user_bio, reply_markup=reply_markup, parse_mode='HTML')
 
     elif current_step.__eq__('Подтверждение'):
         logging.info(f'ТЕКУЩИЙ ШАГ {current_step} а текст сообщения {current_text}')
+
+        keyboard = [
+                ['Главное меню'],
+            ]
+        reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
+
         if current_text.__eq__('Всё верно!✅'):
             context.user_data.pop('Запрос full данных')
             
@@ -535,18 +592,15 @@ async def user_full_information_process(update: Update, context: ContextTypes.DE
             f'<b>Опыт работы:</b>\n{exp}\n'
             f'<b>Образование:</b>\n{educ}\n'
             )
-            
-            await context.bot.send_message(chat_id=user_id, text=message_text, parse_mode='Markdown')
+
+            await extra_inline_button(update, context, message_text,)
+
             await context.bot.send_message(chat_id=group_id, text=user_bio_notice, parse_mode='HTML')
-            await main_start_menu(update, context)
 
         else:
             context.user_data['Запрос full данных'] = 'ФИО'
-            keyboard = [
-                ['Главное меню'],
-            ]
-            reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
-            await update.message.reply_text('Тогда начнем сначала.\nУкажите ваши ФИО:', reply_markup=reply_markup)
+            
+            await context.bot.send_message(chat_id=user_id, text='Тогда начнем сначала.\nУкажите ваши ФИО:', reply_markup=reply_markup)
 
     logging.info(f'ЗАВЕРШАЕМ РАБОТУ ФУНКЦИИ с шагом {current_step} а текст сообщения {current_text}')
     
@@ -571,8 +625,8 @@ async def send_messages(update: Update, context: ContextTypes.DEFAULT_TYPE) -> N
 async def message_text_getting(update: Update, context: ContextTypes.DEFAULT_TYPE) -> str:
     logging.info('edit process')
     context.user_data['message_text'] = None
-
-    await update.message.reply_text('Пришлите мне сообщение, которое хотите разослать:', reply_markup=ReplyKeyboardRemove())
+    user_id = update.effective_user.id
+    await context.bot.send_message(chat_id=user_id, text='Пришлите мне сообщение, которое хотите разослать:', parse_mode='Markdown')
 
     context.user_data['message_state'] = 'Edited'
 
@@ -588,7 +642,9 @@ async def message_text_confirmation(update: Update, context: ContextTypes.DEFAUL
         
     ]
     reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
-    await update.message.reply_text('Вы хотите отправить следующее сообщение?', reply_markup=reply_markup)
+
+    
+    await context.bot.send_message(chat_id=user_id, text='Вы хотите отправить следующее сообщение?', reply_markup=reply_markup)
     await forward_message_with_image(update, context, message_text, image_path, user_id)
     context.user_data['message_state'] = 'Completed'
 
@@ -596,7 +652,6 @@ async def message_text_confirmation(update: Update, context: ContextTypes.DEFAUL
 async def message_text_sending(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 
     keyboard = [
-        ['Рассылка'],
         ['Главное меню']
     ]
 
@@ -613,8 +668,11 @@ async def message_text_sending(update: Update, context: ContextTypes.DEFAULT_TYP
                 logging.exception(f"Не удалось отправить сообщение пользователю {user_id}: {error}")
 
         context.user_data.pop('message_state')
+        context.user_data.pop('message_text')
         reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
-        await update.message.reply_text('Рассылка завершена.', reply_markup=reply_markup)
+        
+        main_id = update.effective_user.id
+        await context.bot.send_message(chat_id=main_id, text='Рассылка завершена.', reply_markup=reply_markup)
 
     elif message_text == 'Нет':
         context.user_data['message_state'] = 'Creating'
@@ -690,7 +748,8 @@ async def user_form_create(update, context, message_text=None):
         )
 
     reply_markup = ReplyKeyboardMarkup(keyboard_cancel, resize_keyboard=True)
-    await update.message.reply_text(message_text, reply_markup=reply_markup)
+    user_id = update.effective_user.id
+    await context.bot.send_message(chat_id=user_id, text=message_text, reply_markup=reply_markup)
 
     context.user_data['Запрос full данных'] = 'Запуск анкетирования'
     context.user_data['information_form'] = {}
@@ -698,12 +757,20 @@ async def user_form_create(update, context, message_text=None):
 
 
 async def inline_buttons_packed(update, context, result):
+    time_wait = 0
+    if len(result) > 10:
+        time_wait = 2
+    vacancy_num = 0
     for vacancy_full in result:
+        vacancy_num += 1
         vacancy = vacancy_full.vacancy_inf
         vacancy_id = vacancy_full.vacancy_id
         vacancy_text = await message_creater(vacancy)
-        
+
+        if vacancy_num % 10 == 0:
+            sleep(time_wait)        
         await send_inline_buttons(update, context, message_text=vacancy_text, vacancy_id=vacancy_id)
+        
 
 
 async def get_vacancies_by_keys_list(update, context, keywords):
@@ -719,9 +786,10 @@ async def get_vacancies_by_keys_list(update, context, keywords):
         if empty_list:
             text = (
             'К сожалению, на текущий момент подходящих вакансий нет.\n'
-            'Сформировать новый запрос.\n'
+            'Попробуйте сформировать новый запрос.\n'
         )
-            await update.message.reply_text(text)
+            user_id = update.effective_user.id
+            await context.bot.send_message(chat_id=user_id, text=text)
             return
 
         await inline_buttons_packed(update, context, result)
@@ -740,9 +808,10 @@ async def get_no_exp_vacancies(update, context):
         if empty_list:
             text = (
             'К сожалению, на текущий момент подходящих вакансий нет.\n'
-            'Сформировать новый запрос.\n'
+            'Попробуйте сформировать новый запрос.\n'
         )
-            await update.message.reply_text(text)
+            user_id = update.effective_user.id
+            await context.bot.send_message(chat_id=user_id, text=text)
             return
 
         await inline_buttons_packed(update, context, result)
@@ -761,9 +830,10 @@ async def get_vacancies_by_key_word(update, context, key_word):
         if empty_list:
             text = (
             'К сожалению, на текущий момент подходящих вакансий нет.\n'
-            'Сформировать новый запрос.\n'
+            'Попробуйте сформировать новый запрос.\n'
         )
-            await update.message.reply_text(text)
+            user_id = update.effective_user.id
+            await context.bot.send_message(chat_id=user_id, text=text)
             return
 
         await inline_buttons_packed(update, context, result)
@@ -862,9 +932,10 @@ async def get_all_company_vacancies(update, context):
         if empty_list:
             text = (
             'К сожалению, на текущий момент подходящих вакансий нет.\n'
-            'Сформировать новый запрос.\n'
+            'Попробуйте сформировать новый запрос.\n'
         )
-            await update.message.reply_text(text)
+            user_id = update.effective_user.id
+            await context.bot.send_message(chat_id=user_id, text=text)
             return
 
         await inline_buttons_packed(update, context, result)
@@ -899,6 +970,7 @@ async def update_vacancies_db(page=0, per_page=100):
 
 async def send_inline_buttons(update: Update, context: ContextTypes.DEFAULT_TYPE, message_text, vacancy_id) -> None:
     logging.info('РЕГИСТРАЦИЯ КНОПОК')
+    user_id = update.effective_user.id
     # Создаем инлайн кнопки
     keyboard = [
         [
@@ -916,11 +988,38 @@ async def send_inline_buttons(update: Update, context: ContextTypes.DEFAULT_TYPE
 
     # Создаем разметку для кнопок
     reply_markup = InlineKeyboardMarkup(keyboard)
-    # Отправляем сообщение с инлайн кнопками
-    await update.message.reply_text(message_text, reply_markup=reply_markup, parse_mode='HTML')
+    await context.bot.send_message(chat_id=user_id, text=message_text, reply_markup=reply_markup, parse_mode='HTML')
 
 
-async def extra_inline_button(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+async def set_inline_keyboard(update: Update, context: ContextTypes.DEFAULT_TYPE, buttons_list: list, message_text: str) -> None:
+    logging.info('РЕГИСТРАЦИЯ КНОПОК')
+    # Создаем инлайн кнопки
+    keyboard = []
+
+    for button in buttons_list:
+        logging.info(button)
+        if all(isinstance(element, str) for element in button):
+            button_name, button_data = button
+            keyboard.append(
+                [InlineKeyboardButton(text = button_name, callback_data = button_data)]
+            )
+        else:
+            next_button_row = []
+            for element in button:
+                button_name, button_data = element
+                next_button_row.append(
+                    InlineKeyboardButton(text = button_name, callback_data = button_data)
+                )
+            keyboard.append(next_button_row)
+
+    # Создаем разметку для кнопок
+    reply_markup = InlineKeyboardMarkup(keyboard)
+
+    user_id = update.effective_user.id
+    await context.bot.send_message(chat_id=user_id, text=message_text, reply_markup=reply_markup, parse_mode='HTML')
+
+
+async def extra_inline_button(update: Update, context: ContextTypes.DEFAULT_TYPE, inline_message_text, user_id = None, parse_mode=None) -> None:
     # Создаем инлайн кнопки
     keyboard = [
         [
@@ -930,9 +1029,10 @@ async def extra_inline_button(update: Update, context: ContextTypes.DEFAULT_TYPE
     ]
     # Создаем разметку для кнопок
     reply_markup = InlineKeyboardMarkup(keyboard)
-    # Отправляем сообщение с инлайн кнопками
-    text = 'Вы всегда можете вернуться.'
-    await update.message.reply_text(text, reply_markup=reply_markup, parse_mode='HTML')
+    if user_id:
+        await context.bot.send_message(chat_id=user_id, text=inline_message_text, reply_markup=reply_markup, parse_mode=parse_mode)
+    else:
+        await update.message.reply_text(inline_message_text, reply_markup=reply_markup, parse_mode=parse_mode)
 
 
 async def inf_taker(full_information):
