@@ -372,7 +372,7 @@ async def user_form_information_process(update: Update, context: ContextTypes.DE
             ]
 
             reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
-            await context.bot.send_message(chat_id=user_id, text='Возвращаем вас в главное меню', reply_markup=reply_markup)
+            await context.bot.send_message(chat_id=user_id, text='Возвращаем клавиатуру в исходное.', reply_markup=reply_markup)
 
             await extra_inline_button(update, context, final_text, user_id=user_id, parse_mode='Markdown')
 
@@ -597,7 +597,7 @@ async def user_full_information_process(update: Update, context: ContextTypes.DE
             ['Главное меню'],
             ]
             reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
-            await context.bot.send_message(chat_id=user_id, text='Возвращаем вас в главное меню', reply_markup=reply_markup)
+            await context.bot.send_message(chat_id=user_id, text='Возвращаем клавиатуру в исходное.', reply_markup=reply_markup)
             await extra_inline_button(update, context, message_text,)
             
             await context.bot.send_message(chat_id=group_id, text=user_bio_notice, parse_mode='HTML')
