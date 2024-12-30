@@ -54,6 +54,9 @@ async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
     
     elif buttons_calling_data.__eq__('no_exp'):
         await get_no_exp_vacancies(update, context)
+
+    elif buttons_calling_data.__eq__('duty_vacancies'):
+        await get_vacancies_by_key_word(update, context, key_word='Стажер')
     
     elif buttons_calling_data.__eq__('show_all'):
         current_count = await get_vacancy_count()
