@@ -274,8 +274,12 @@ async def user_form_information_process(update: Update, context: ContextTypes.DE
             await context.bot.send_message(chat_id=user_id, text=text, reply_markup=reply_markup)
 
     elif current_step.__eq__('Утверждение найденной анкеты'):
-        ch = current_text.__eq__('Продолжить с моими данными')
-        logging.info(f'Утверждение: {current_text} and {ch}')
+
+        keyboard = [
+                ['Главное меню'],
+            ]
+        reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True) 
+
         if current_text.__eq__('Продолжить с моими данными'):
             context.user_data.pop('Запрос анкетных данных')
             
@@ -289,11 +293,9 @@ async def user_form_information_process(update: Update, context: ContextTypes.DE
             vacancion_name = context.user_data['vacancy_name']
             note_text = f'Пользователь: {user_name}\nОткликнулся на вакансию: {vacancion_name}'
 
-            keyboard = [
-                ['Главное меню'],
-            ]
-            reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True)            
+                       
 
+            await context.bot.send_message(chat_id=user_id, text='Возвращаем клавиатуру в исходное.', reply_markup=reply_markup)
             await extra_inline_button(update, context, final_text,)
             await context.bot.send_message(chat_id=group_id, text=note_text)
             
@@ -306,10 +308,6 @@ async def user_form_information_process(update: Update, context: ContextTypes.DE
 
             context.user_data['Запрос анкетных данных'] = 'Номер телефона'
             text = 'Ваш контактный номер телефона:'
-            keyboard = [
-                ['Главное меню'],
-            ]
-            reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
             await context.bot.send_message(chat_id=user_id, text=text, reply_markup=reply_markup)
 
 
