@@ -405,7 +405,6 @@ async def user_form_information_process(update: Update, context: ContextTypes.DE
             if 'pdf_path' in context.user_data:
                 pdf_path = context.user_data['pdf_path']
                 await send_pdf(update, context, pdf_path=pdf_path, chat_id=group_id, user_name=user_name)
-            await main_start_menu(update, context)
 
         else:
             context.user_data['Запрос анкетных данных'] = 'ФИО'
@@ -613,10 +612,7 @@ async def user_full_information_process(update: Update, context: ContextTypes.DE
             f'<b>Опыт работы:</b>\n{exp}\n'
             f'<b>Образование:</b>\n{educ}\n'
             )
-            keyboard = [
-            ['Главное меню'],
-            ]
-            reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
+
             await context.bot.send_message(chat_id=user_id, text='Возвращаем клавиатуру в исходное.', reply_markup=reply_markup)
             await extra_inline_button(update, context, message_text,)
             
