@@ -120,9 +120,29 @@ async def user_form_information_process(update: Update, context: ContextTypes.DE
         keyboard = [
             ['Назад']
         ]
-
         reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
-        await context.bot.send_message(chat_id=user_id, text=text, reply_markup=reply_markup)
+
+        if current_text.__eq__('Согласен с политикой обработки персональных данных ✅'):
+            await context.bot.send_message(chat_id=user_id, text=text, reply_markup=reply_markup)
+
+        else:
+            context.user_data['Запрос анкетных данных'] = 'Запуск анкетирования'
+            context.user_data.pop('Запрос анкетных данных')
+            
+            admin_check = user_id in admins_id
+            if admin_check:
+                context.user_data['admin_status'] = True
+                buttons_list = admin_main_menu_keyboard
+            else:
+                buttons_list = user_main_menu_keyboard
+
+            keyboard = [
+                ['Главное меню'],
+            ]
+            reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
+            await context.bot.send_message(chat_id=user_id, text='Возвращаем вас в главное меню', reply_markup=reply_markup)
+            await set_inline_keyboard(update, context, buttons_list = buttons_list, message_text = welcome_text)
+
 
     elif next_step.__eq__('Резюме вопрос'):
         text = 'Хотите прикрепить резюме?'
