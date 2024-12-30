@@ -300,7 +300,6 @@ async def user_form_information_process(update: Update, context: ContextTypes.DE
             if 'pdf_path' in context.user_data:
                 pdf_path = context.user_data['pdf_path']
                 await send_pdf(update, context, pdf_path=pdf_path, chat_id=group_id, user_name=user_name)
-            await main_start_menu(update, context)
 
         elif current_text.__eq__('Заполнить заново'):
 
