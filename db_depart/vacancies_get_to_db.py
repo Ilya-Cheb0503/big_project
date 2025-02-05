@@ -1,14 +1,14 @@
 import asyncio
 import json
 import logging
-from typing import Dict, Optional
+from typing import Optional
 
-import sqlalchemy
 from databases import Database
-from sqlalchemy import (JSON, Column, Integer, String, and_, cast,
-                        create_engine, select)
+from sqlalchemy import JSON, Column, Integer, create_engine, select
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import declarative_base, sessionmaker
+from sqlalchemy.orm import declarative_base
+
+from functions.vacancies_getting import update_vacancies_db
 
 Base = declarative_base()
 
@@ -203,7 +203,7 @@ async def get_vacancies_by_option(option_name: str, option_value:str):
 
 
 async def main():
-    from functions import update_vacancies_db
+    
     await start_create_table(DATABASE_URL)
     await update_vacancies_db()
     # await create_vacancies_in_db(vac_list)
