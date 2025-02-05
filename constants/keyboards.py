@@ -9,6 +9,7 @@ admin_main_menu_keyboard = [
 
 admin_options_keyboard = [
     ['Рассылка'],
+    ['Метрика'],
     ['Главное меню']
 ]
 
