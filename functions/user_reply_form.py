@@ -3,10 +3,10 @@ import logging
 from telegram import ReplyKeyboardMarkup, Update
 from telegram.ext import ContextTypes
 
-from constants.constants import admins_id, group_id
 from constants.keyboards import (admin_main_menu_keyboard,
                                  user_main_menu_keyboard)
 from constants.messages_text import welcome_text
+from constants.some_constants import admins_id, group_id
 from db_depart.user_db import get_user, update_user_in_db
 from functions.inline_buttons import extra_inline_button, set_inline_keyboard
 from pwd_generator import get_current_directory
