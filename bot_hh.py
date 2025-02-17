@@ -81,7 +81,7 @@ async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
         'Выгрузка может занять длительное время и составить большой объем.\nПодтвердите, что вы хотите просмотреть все вакансии.')
         keyboard = [
             [InlineKeyboardButton(text = 'Да, я готов 🔍', callback_data = 'risk')],
-            [InlineKeyboardButton(text = 'Главное меню', callback_data = 'main_menu')]
+            [InlineKeyboardButton(text = 'Назад', callback_data = 'vacancies')]
         ]
         reply_markup = InlineKeyboardMarkup(keyboard)
         await query.edit_message_text(text=warning_text, reply_markup=reply_markup)
