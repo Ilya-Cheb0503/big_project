@@ -8,6 +8,6 @@ CLIENT_SECRET = os.getenv('HHRU_CLIENT_SECRET')
 ACCESS_TOKEN = os.getenv('ACCESS_TOKEN')
 USER_ACCESS_TOKEN = os.getenv('USER_ACCESS_TOKEN')
 
-group_id = '-1002434691003'
+group_id = '-1002424181660'
 dev_id = 2091023767
-admins_id = [dev_id, 787264207, 155771631]
+admins_id = [dev_id]

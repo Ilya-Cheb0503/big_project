@@ -9,7 +9,6 @@ from db_depart.user_db import get_all_users
 from functions.inline_buttons import set_inline_keyboard
 from pwd_generator import get_current_directory
 
-
 async def send_messages(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     logging.info('send process')
     # Запрос текста сообщения от пользователя

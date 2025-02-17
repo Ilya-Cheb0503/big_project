@@ -3,10 +3,10 @@ import logging
 from telegram import ReplyKeyboardMarkup, Update
 from telegram.ext import ContextTypes
 
+from constants.some_constants import admins_id, group_id
 from constants.keyboards import (admin_main_menu_keyboard,
                                  user_main_menu_keyboard)
 from constants.messages_text import welcome_text
-from constants.some_constants import admins_id, group_id
 from db_depart.user_db import update_user_in_db
 from functions.inline_buttons import extra_inline_button, set_inline_keyboard
 
@@ -38,7 +38,15 @@ async def user_full_information_process(update: Update, context: ContextTypes.DE
         'Должность': ('Опыт работы', 'Ваш стаж:'),
         'Опыт работы': ('Образование', 'Ваш уровень образования:'),
         'Образование': ('Подтверждение', None),
-        'Подтверждение': ('done', 'Ура, ваша анкета уже у нас! Спасибо за Ваше время, мы Вас не подведем!\nЕсли Вам не хочется ждать, Вы можете позвонить нам напрямую: +7 495 957-19-57'),
+        'Подтверждение': (
+            'done',
+            (
+                'Ваша анкета у нас. Спасибо за уделённое время.\n'
+                'Мы изучим вашу анкету и предложим существующие вакансии.\n'
+                'Если вы хотите уточнить информацию лично,\n'
+                'просим обращаться по единому телефону справочной службы: 8-800-30-20-10-9 📞'
+            )
+        ),
         'done': (None, None)
     }
 
@@ -78,7 +86,11 @@ async def user_full_information_process(update: Update, context: ContextTypes.DE
     
     
     if current_step.__eq__('Запуск анкетирования'):
-        text = 'Просто отвечайте на вопросы бота,\nа он бережно соберет Ваши данные в анкету 📠'
+        text = (
+            'Ответьте на вопросы бота,\n'
+            'он соберёт ваши данные в анкету\n'
+            'и направит её специалисту ✉️'
+        )
         logging.info(f'ТЕКУЩИЙ ШАГ {current_step} а текст сообщения {current_text}')
         keyboard_cancel = [
             ['Продолжить'],

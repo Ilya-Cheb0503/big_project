@@ -1,1 +1,0 @@
-from .vacancies_getting import update_vacancies_db

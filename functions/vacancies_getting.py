@@ -3,23 +3,21 @@ from time import sleep
 
 import requests
 
-from constants.some_constants import ACCESS_TOKEN
-from data_holder.data_science import key_keeper
+from constants.constants import ACCESS_TOKEN
 from db_depart.new_module import (filling_vacancies_to_db,
                                   get_all_vacancies_module,
                                   get_no_exp_vacancies_module,
                                   get_vacancies_by_key_word_module,
                                   get_vacancies_by_keys_list_module)
-from functions.inline_buttons import inline_buttons_packed
 from functions.special_functions import check_for_empty_list
+from functions.inline_buttons import inline_buttons_packed
 from functions.vacancies_cards import inf_taker
 from settings import logging
 
 
-async def get_vacancies_by_keys_list(update, context, keywords, first_key):
+from data_holder.data_science import key_keeper
 
-    await key_keeper('categories', first_key)
-
+async def get_vacancies_by_keys_list(update, context, keywords):
     try:
         result = await get_vacancies_by_keys_list_module(keywords)
     
@@ -65,7 +63,7 @@ async def get_no_exp_vacancies(update, context):
 
 async def get_vacancies_by_key_word(update, context, key_word):
 
-    await key_keeper('keys_word', key_word)
+    await key_keeper(key_word)
 
     try:
         result = await get_vacancies_by_key_word_module(key_word)
@@ -120,7 +118,6 @@ async def update_vacancies_db(page=0, per_page=100):
         "Content-Type": "application/json"
     }
     params = {
-        # "area": 1,  # ID города, например, Москва - 1
         'employer_id': [1279490],
         "page": page,
         "per_page": per_page
