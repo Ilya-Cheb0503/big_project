@@ -21,6 +21,7 @@ from constants.vacancies_keys import (energy_vacancy_keys,
                                       ofice_request_translater,
                                       ofice_vacancy_keys,
                                       power_request_translater)
+from constants.regions_data import region_list
 from db_depart.bd_update import create_rename_and_delete
 from db_depart.new_module import get_vacancy_by_vacancy_id
 from db_depart.user_db import (creat_user_in_db, get_user_from_db,
@@ -56,6 +57,10 @@ async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
         await list_waiting(update, context)
     elif buttons_calling_data.__eq__('postman'):
         await send_messages(update, context)
+    
+    # elif buttons_calling_data.__eq__('more-more') or buttons_calling_data.__eq__('stop'):
+    #     context.user_data['user_move'] = buttons_calling_data
+
 
     elif buttons_calling_data in power_request_translater.keys():
         first_key = power_request_translater[buttons_calling_data]
@@ -91,7 +96,12 @@ async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
         await get_all_company_vacancies(update, context)
 
 
-    elif buttons_calling_data in but_opt.keys():
+    elif buttons_calling_data in but_opt.keys() or buttons_calling_data in region_list:
+        if buttons_calling_data in region_list:
+            await update_user_in_db(user_id, user_inf={'Целевой филиал':buttons_calling_data})
+            buttons_calling_data = 'vacancies'
+
+
         menu = buttons_calling_data == 'main_menu'
         message_text, buttons_set = but_opt[buttons_calling_data]
         if menu and 'admin_status' in context.user_data:
