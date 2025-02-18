@@ -44,7 +44,7 @@ async def inline_buttons_packed(update, context, result):
             #     sleep(2)
             #     print(f'rest is {rest}')
             # print(123)
-            # vacancy_num = 0
+            vacancy_num = 0
             # if context.user_data['user_move'] == 'stop':
             #     context.user_data.pop('user_move')
             #     return
