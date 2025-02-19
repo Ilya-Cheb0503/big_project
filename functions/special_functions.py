@@ -1,4 +1,3 @@
-from functions.user_data_form import user_full_information_process
 from settings import logging
 
 
@@ -6,13 +5,27 @@ async def check_for_empty_list(result):
     return result == []
 
 
-async def list_waiting(update, context):
-    logging.info('ВЫЗВАЛИ list_waitnig')
-    
-    if 'Запрос full данных' not in context.user_data:
-        # await update.message.reply_text(text_wait, reply_markup=reply_markup)
-        context.user_data['Запрос full данных'] = 'Запуск анкетирования'
-        context.user_data['information_form'] = {}
-    await user_full_information_process(update, context)
+async def packer(unpacked_list):
 
-    logging.info('ЗАВЕРШИЛИ list_waitnig')
+    pack_list = []
+    packing = []
+
+    list_size = len(unpacked_list)
+    stop_los = list_size % 5
+    for i in range(list_size):
+        
+        if i == stop_los and stop_los != 0:
+            pack_list.append(packing)
+            packing = []
+
+        elif (i - stop_los) % 5 == 0 and i != 0:
+            pack_list.append(packing)
+            packing = []
+
+        packing.append(unpacked_list[i])
+
+        if list_size - i == 1:
+            pack_list.append(packing)
+            packing = []
+
+    return pack_list

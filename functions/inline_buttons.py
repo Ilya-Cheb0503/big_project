@@ -4,51 +4,83 @@ from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
 from telegram.ext import ContextTypes
 
 from functions.vacancies_cards import message_creater
+from functions.special_functions import packer
 from settings import logging
 
 from db_depart.new_module import get_vacancy_by_vacancy_id
 
 async def inline_buttons_packed(update, context, result):
-    time_wait = 0
-    if len(result) > 5:
-        time_wait = 2
+
+    vacancies_id = []
     vacancy_num = 0
     for vacancy_full in result:
         vacancy_num += 1
         vacancy = vacancy_full.vacancy_inf
         vacancy_id = vacancy_full.vacancy_id
+
         vacancy_text = await message_creater(vacancy)
+        if vacancy_num < 6:
+            await send_inline_buttons(update, context, message_text=vacancy_text, vacancy_id=vacancy_id)
+            
+        else:
+            vacancies_id.append(vacancy_id)
 
-        options_ask = [
-            ['Показать еще', 'more-more'],
-            ['Достаточно', 'stop'],
-        ]
-        ask_text = 'Показать еще вакансии или остановиться ?'
+    if vacancy_num > 5:
+        packed_vacancies_id = await packer(vacancies_id)
+        print(packed_vacancies_id)
 
+        await next_or_stop(
+            update,
+            context,
+            vacancy_count=vacancy_num,
+            last_watched_count=0,
+            new_watched_count=5,
+            left_packing=packed_vacancies_id
+        )
+
+
+async def next_or_stop(update, context, vacancy_count, last_watched_count, new_watched_count, left_packing):
+    summ_watched = last_watched_count+new_watched_count
+    options_ask = [
+        ['Показать еще', 'more_more'],
+        ['Достаточно', 'main_menu'],
+    ]
+    ask_text = f'Всего вакансий: {vacancy_count}\n'
+    if summ_watched < vacancy_count:
+        ask_text += (
+            f'Вы просмотрели {summ_watched} из них.\n'
+            'Показать еще вакансии или остановиться ?'
+            )
+
+        
+        context.user_data['vacancies_informations'] = [vacancy_count, summ_watched, left_packing]
+        await set_inline_keyboard(update, context, options_ask, ask_text)
+
+
+async def one_more_dose(update, context):
+
+    vacancy_num, watched_num, packed_vacancies_id = context.user_data['vacancies_informations']
+    next_pack = packed_vacancies_id.pop(-1)
+    pack_size = len(next_pack)
+
+    for vacancy_id in next_pack:
+        vacancy_data = await get_vacancy_by_vacancy_id(vacancy_id)
+
+        vacancy = vacancy_data.vacancy_inf
+        vacancy_id = vacancy_data.vacancy_id
+
+        vacancy_text = await message_creater(vacancy)
         await send_inline_buttons(update, context, message_text=vacancy_text, vacancy_id=vacancy_id)
-        if vacancy_num == 5:
-            sleep(2)
-            # await set_inline_keyboard(update, context, options_ask, ask_text)
-            # query = update.callback_query
-            # rest = await query.answer()
-            # print(f'Rest is {rest}')
-            # while rest:
-            #     query = update.callback_query
-            #     rest = await query.answer() 
-
-            #     # Мы отправляем сообщение "Показать еще вакансии" и там только вариант "еще", который ведет к тому, что подгружается еще 5 вакансий, а если нет, то никакого ожилания
-            #     # то есть просто в само сообщение закладываем инфу о вакансиях, которые подргузятся, если их запросят
-            #     # Можно оставить кнопку - Достаточно, которая будет удалять это сообщение.
-
-            #     # await button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE)
-            #     sleep(2)
-            #     print(f'rest is {rest}')
-            # print(123)
-            vacancy_num = 0
-            # if context.user_data['user_move'] == 'stop':
-            #     context.user_data.pop('user_move')
-            #     return
-            # context.user_data.pop('user_move')
+    
+    if packed_vacancies_id:
+        await next_or_stop(
+            update,
+            context,
+            vacancy_count=vacancy_num,
+            last_watched_count=watched_num,
+            new_watched_count=pack_size,
+            left_packing=packed_vacancies_id
+        )
 
 
 async def send_inline_buttons(update: Update, context: ContextTypes.DEFAULT_TYPE, message_text, vacancy_id) -> None:

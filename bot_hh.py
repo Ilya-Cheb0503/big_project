@@ -26,8 +26,8 @@ from db_depart.bd_update import create_rename_and_delete
 from db_depart.new_module import get_vacancy_by_vacancy_id
 from db_depart.user_db import (creat_user_in_db, get_user_from_db,
                                update_user_in_db)
-from functions.special_functions import list_waiting
-from functions.inline_buttons import set_inline_keyboard
+from functions.user_data_form import list_waiting
+from functions.inline_buttons import set_inline_keyboard, one_more_dose
 from functions.tg_mailman import send_messages
 from functions.user_data_form import user_full_information_process
 from functions.user_reply_form import user_form_information_process
@@ -58,9 +58,8 @@ async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
     elif buttons_calling_data.__eq__('postman'):
         await send_messages(update, context)
     
-    # elif buttons_calling_data.__eq__('more-more') or buttons_calling_data.__eq__('stop'):
-    #     context.user_data['user_move'] = buttons_calling_data
-
+    elif buttons_calling_data.__eq__('more_more'):
+        await one_more_dose(update, context)
 
     elif buttons_calling_data in power_request_translater.keys():
         first_key = power_request_translater[buttons_calling_data]
