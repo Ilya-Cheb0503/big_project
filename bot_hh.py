@@ -277,7 +277,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 
         sleep(0.5)
         
-        await context.bot.send_message(chat_id=group_id, text=welcome_two, parse_mode='Markdown', reply_markup=reply_markup)
+        await context.bot.send_message(chat_id=user_id, text=welcome_two, parse_mode='Markdown', reply_markup=reply_markup)
 
     else:
         await update_user_in_db(user_id, menu_state='Меню пользователя')
