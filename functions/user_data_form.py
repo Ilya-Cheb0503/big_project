@@ -7,6 +7,7 @@ from constants.some_constants import admins_id, group_id
 from constants.keyboards import (admin_main_menu_keyboard,
                                  user_main_menu_keyboard)
 from constants.messages_text import welcome_text
+from constants.regions_data import region_buttons_list
 from db_depart.user_db import update_user_in_db
 from functions.inline_buttons import extra_inline_button, set_inline_keyboard
 
@@ -34,7 +35,9 @@ async def user_full_information_process(update: Update, context: ContextTypes.DE
         # 'Утверждение запуска': ('Старт', None),
         'Старт': ('ФИО','Для начала укажите в сообщении ваши ФИО:'),
         'ФИО': ('Номер телефона', 'Ваш контактный номер телефона:'),
-        'Номер телефона': ('Должность', 'Желаемая должность:'),
+        'Номер телефона': ('email', 'Ваш электронный адрес:'),
+        'email': ('Регион поиска', 'Выбранный регион поиска:'),
+        'Регион поиска': ('Должность', 'Желаемая должность:'),
         'Должность': ('Опыт работы', 'Ваш стаж:'),
         'Опыт работы': ('Образование', 'Ваш уровень образования:'),
         'Образование': ('Подтверждение', None),
@@ -51,7 +54,7 @@ async def user_full_information_process(update: Update, context: ContextTypes.DE
     }
 
     save_steps = [
-        'ФИО', 'Номер телефона', 'Должность', 'Опыт работы', 'Образование'
+        'ФИО', 'Номер телефона', 'email', 'Регион поиска', 'Должность', 'Опыт работы', 'Образование'
         ]
     
     
@@ -141,6 +144,25 @@ async def user_full_information_process(update: Update, context: ContextTypes.DE
         await context.bot.send_message(chat_id=user_id, text=text, reply_markup=reply_markup)
     
 
+    elif next_step.__eq__('email'):
+        logging.info(f'ТЕКУЩИЙ ШАГ {current_step} а текст сообщения {current_text}')
+        text = 'Ваш электронный адрес:'
+        keyboard = [
+        ['Главное меню'],
+        ]
+
+        reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
+        await context.bot.send_message(chat_id=user_id, text=text, reply_markup=reply_markup)
+    
+    elif next_step.__eq__('Регион поиска'):
+        logging.info(f'ТЕКУЩИЙ ШАГ {current_step} а текст сообщения {current_text}')
+        text = 'Выбранный регион поиска:'
+        keyboard = region_buttons_list
+
+        reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
+        await context.bot.send_message(chat_id=user_id, text=text, reply_markup=reply_markup)
+
+
     elif next_step.__eq__('Должность'):
         logging.info(f'ТЕКУЩИЙ ШАГ {current_step} а текст сообщения {current_text}')
         text = 'Желаемая должность:'
@@ -189,6 +211,8 @@ async def user_full_information_process(update: Update, context: ContextTypes.DE
         user_inf = context.user_data['information_form']
         full_name = user_inf['ФИО']
         phone = user_inf['Номер телефона']
+        email = user_inf['email']
+        place = user_inf['Регион поиска']
         work = user_inf['Должность']
         exp = user_inf['Опыт работы']
         educ = user_inf['Образование']
@@ -196,6 +220,8 @@ async def user_full_information_process(update: Update, context: ContextTypes.DE
         user_bio = (
             f'<b>ФИО:</b>\n{full_name}\n\n'
             f'<b>Номер телефона:</b>\n{phone}\n\n'
+            f'<b>Email:</b>\n{email}\n\n'
+            f'<b>Регион поиска:</b>\n{place}\n\n'
             f'<b>Должность:</b>\n{work}\n\n'
             f'<b>Опыт работы:</b>\n{exp}\n\n'
             f'<b>Образование:</b>\n{educ}\n\n'
@@ -218,6 +244,8 @@ async def user_full_information_process(update: Update, context: ContextTypes.DE
             user_inf = context.user_data['information_form']
             full_name = user_inf['ФИО']
             phone = user_inf['Номер телефона']
+            email = user_inf['email']
+            place = user_inf['Регион поиска']
             work = user_inf['Должность']
             exp = user_inf['Опыт работы']
             educ = user_inf['Образование']
@@ -226,6 +254,8 @@ async def user_full_information_process(update: Update, context: ContextTypes.DE
             f'Пользователь: {full_name}\n'
             'Заполнил анкету персональных данных.\n\n'
             f'<b>Номер телефона:</b>\n{phone}\n'
+            f'<b>Email:</b>\n{email}\n'
+            f'<b>Регион поиска:</b>\n{place}\n'
             f'<b>Должность:</b>\n{work}\n'
             f'<b>Опыт работы:</b>\n{exp}\n'
             f'<b>Образование:</b>\n{educ}\n'

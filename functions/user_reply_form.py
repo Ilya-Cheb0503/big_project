@@ -52,7 +52,8 @@ async def user_form_information_process(update: Update, context: ContextTypes.DE
         'Доп pdf файл': ('Резюме', None),
         
         'Резюме': ('Номер телефона', 'Ваш контактный номер телефона:'),
-        'Номер телефона': ('Должность', 'Желаемая должность:'),
+        'Номер телефона': ('email', 'Ваш электронный адрес:'),
+        'email': ('Должность', 'Желаемая должность:'),
         'Должность': ('Опыт работы', 'Ваш стаж:'),
         'Опыт работы': ('Образование', 'Ваш уровень образования:'),
         'Образование': ('Подтверждение', None),
@@ -60,7 +61,7 @@ async def user_form_information_process(update: Update, context: ContextTypes.DE
         'done': (None, None)
     }
     save_steps = [
-        'ФИО', 'Номер телефона', 'Должность', 'Опыт работы', 'Образование'
+        'ФИО', 'Номер телефона', 'email', 'Должность', 'Опыт работы', 'Образование'
         ]
 
     current_step = context.user_data['Запрос анкетных данных']
@@ -444,6 +445,17 @@ async def user_form_information_process(update: Update, context: ContextTypes.DE
             # text = 'Ваш контактный номер телефона:'
             # await context.bot.send_message(chat_id=user_id, text=text, reply_markup=reply_markup)
 
+    elif next_step.__eq__('email'):
+        logging.info(f'ТЕКУЩИЙ ШАГ {current_step} а текст сообщения {current_text}')
+        text = 'Ваш электронный адрес:'
+        keyboard = [
+        ['Главное меню'],
+        ]
+
+        reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
+        await context.bot.send_message(chat_id=user_id, text=text, reply_markup=reply_markup)
+    
+
 
     elif next_step.__eq__('Должность'):
         text = 'Желаемая должность:'
@@ -487,6 +499,7 @@ async def user_form_information_process(update: Update, context: ContextTypes.DE
         user_inf = context.user_data['information_form']
         full_name = user_inf['ФИО']
         phone = user_inf['Номер телефона']
+        email = user_inf['email']
         work = user_inf['Должность']
         exp = user_inf['Опыт работы']
         educ = user_inf['Образование']
@@ -494,6 +507,7 @@ async def user_form_information_process(update: Update, context: ContextTypes.DE
         user_bio = (
             f'<b>ФИО:</b>\n{full_name}\n\n'
             f'<b>Номер телефона:</b>\n{phone}\n\n'
+            f'<b>Email:</b>\n{email}\n\n'
             f'<b>Должность:</b>\n{work}\n\n'
             f'<b>Опыт работы:</b>\n{exp}\n\n'
             f'<b>Образование:</b>\n{educ}\n\n'
@@ -509,6 +523,7 @@ async def user_form_information_process(update: Update, context: ContextTypes.DE
             user_inf = context.user_data['information_form']
             full_name = user_inf['ФИО']
             phone = user_inf['Номер телефона']
+            email = user_inf['email']
             work = user_inf['Должность']
             exp = user_inf['Опыт работы']
             educ = user_inf['Образование']
