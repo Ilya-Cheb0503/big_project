@@ -27,7 +27,6 @@ async def inline_buttons_packed(update, context, result):
 
     if vacancy_num > 5:
         packed_vacancies_id = await packer(vacancies_id)
-        print(packed_vacancies_id)
 
         await next_or_stop(
             update,
