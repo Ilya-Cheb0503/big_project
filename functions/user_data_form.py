@@ -244,3 +244,13 @@ async def user_full_information_process(update: Update, context: ContextTypes.DE
     logging.info(f'ЗАВЕРШАЕМ РАБОТУ ФУНКЦИИ с шагом {current_step} а текст сообщения {current_text}')
     
 
+async def list_waiting(update, context):
+    logging.info('ВЫЗВАЛИ list_waitnig')
+    
+    if 'Запрос full данных' not in context.user_data:
+        # await update.message.reply_text(text_wait, reply_markup=reply_markup)
+        context.user_data['Запрос full данных'] = 'Запуск анкетирования'
+        context.user_data['information_form'] = {}
+    await user_full_information_process(update, context)
+
+    logging.info('ЗАВЕРШИЛИ list_waitnig')
