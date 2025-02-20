@@ -432,19 +432,6 @@ async def user_form_information_process(update: Update, context: ContextTypes.DE
                 await context.bot.send_document(chat_id=user_id, document=pdf_file, filename='Согласие на обработку персональных данных.pdf')
             await context.bot.send_message(chat_id=user_id, text=text_wait, reply_markup=reply_markup)
 
-            # context.user_data['Запрос анкетных данных'] = 'ФИО'
-            # text = 'Для начала укажите в сообщении ваши ФИО:'
-            # keyboard = [
-            # ['Назад']
-            # ]
-            # reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
-
-            # await context.bot.send_message(chat_id=user_id, text=text, reply_markup=reply_markup)
-
-            # context.user_data['Запрос анкетных данных'] = 'Номер телефона'
-            # text = 'Ваш контактный номер телефона:'
-            # await context.bot.send_message(chat_id=user_id, text=text, reply_markup=reply_markup)
-
     elif next_step.__eq__('email'):
         logging.info(f'ТЕКУЩИЙ ШАГ {current_step} а текст сообщения {current_text}')
         text = 'Ваш электронный адрес:'
@@ -454,8 +441,6 @@ async def user_form_information_process(update: Update, context: ContextTypes.DE
 
         reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
         await context.bot.send_message(chat_id=user_id, text=text, reply_markup=reply_markup)
-    
-
 
     elif next_step.__eq__('Должность'):
         text = 'Желаемая должность:'

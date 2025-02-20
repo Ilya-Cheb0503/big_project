@@ -1,5 +1,6 @@
 admin_main_menu_keyboard = [
     ['Ищу работу', 'region'],
+    ['Я студент', 'student'],
     ['О ПАО «ОГК-2»', 'about_company'],
     ['Частые вопросы', 'FQA'],
     ['Отправить анкету', 'user_data'],
@@ -14,6 +15,7 @@ admin_options_keyboard = [
 
 user_main_menu_keyboard = [
     ['Ищу работу', 'region'],
+    ['Я студент', 'student'],
     ['О ПАО «ОГК-2»', 'about_company'],
     ['Частые вопросы', 'FQA'],
     ['Отправить анкету', 'user_data'],

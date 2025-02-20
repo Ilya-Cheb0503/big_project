@@ -34,6 +34,7 @@ but_opt = {
         ['Все вакансии', 'show_all'],
         ['Вакансии по направлениям деятельности', 'categories'],
         ['Без опыта работы', 'no_exp'],
+        ['Перезвоните мне', 'user_data'],
         ['Главное меню', 'main_menu'],
     ]
 ],
@@ -201,6 +202,38 @@ but_opt = {
 
 'no_exp': [
     'Какая-то ошибка',
+    None
+],
+
+'student': [
+    'Выберите интересующий пункт',
+    [
+        ['Практика', 'student_pactice'],
+        ['Целевое обучение', 'student_study'],
+        ['Сотрудничество с вузами', 'student_cooperation'],
+        ['Временное трудоустройство', 'student_time_work'],
+        ['Постоянная работа', 'region'],
+        ['Главное меню', 'main_menu'],
+    ]
+],
+
+'student_pactice': [
+    student_pactice_text,
+    None
+],
+
+'student_study': [
+    student_study_text,
+    None
+],
+
+'student_cooperation': [
+    student_cooperation_text,
+    None
+],
+
+'student_time_work': [
+    student_time_work_text,
     None
 ],
 
