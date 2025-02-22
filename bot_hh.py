@@ -157,7 +157,7 @@ async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
             f'Откликнулся на вакансию: {vacancy_name}'
         )
         await key_keeper('replies', vacancy_name)
-        # await context.bot.send_message(chat_id=group_id, text=user_send_req_text)
+        await context.bot.send_message(chat_id=group_id, text=user_send_req_text)
 
         # Создаем новую кнопку с URL
         keyboard = [
@@ -181,8 +181,7 @@ async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
         logging.info(f'IMPOOOOORTANT {vacancion_name}')
         note_text = f'Пользователь: {user_name}\nОткликнулся на вакансию: {vacancion_name}'
         if 'ФИО' and 'Образование' in user_inf:
-            # await context.bot.send_message(chat_id=group_id, text=note_text, parse_mode='HTML')
-            pass
+            await context.bot.send_message(chat_id=group_id, text=note_text, parse_mode='HTML')
 
 
 # Функция для обработки нажатий кнопок
@@ -266,9 +265,9 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
     
     # if admin_authenticated.get(user_id, False):
+    text = welcome_text 
     if user_id in admins_id:
         await update_user_in_db(user_id, menu_state='Меню администратора')
-        text = welcome_text 
         context.user_data['admin_status'] = True
         await set_inline_keyboard(update, context, buttons_list = admin_main_menu_keyboard, message_text = text)
 
