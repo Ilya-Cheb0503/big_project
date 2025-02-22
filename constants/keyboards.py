@@ -4,6 +4,7 @@ admin_main_menu_keyboard = [
     ['Частые вопросы', 'FQA'],
     ['Мои данные', 'user_data'],
     ['Контакты', 'contacts'],
+    ['Социальные сети', 'social_media'],
     ['Панель администратора', 'admin_soft']
 ]
 
@@ -19,6 +20,7 @@ user_main_menu_keyboard = [
     ['Частые вопросы', 'FQA'],
     ['Мои данные', 'user_data'],
     ['Контакты', 'contacts'],
+    ['Социальные сети', 'social_media'],
 ]
 
 vacancies_menu_keyboard = [
