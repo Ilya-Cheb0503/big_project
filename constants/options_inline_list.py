@@ -1,6 +1,6 @@
 from constants.company_info import *
 from constants.keyboards import *
-from constants.messages_text import contacts_info, welcome_text
+from constants.messages_text import contacts_info, welcome_text, social_media
 
 get_vacancies_options = {
     'risk': 'show_all',
@@ -292,6 +292,11 @@ but_opt = {
 
 'contacts': [
     contacts_info,
+    None
+],
+
+'social_media' : [
+    social_media,
     None
 ],
 

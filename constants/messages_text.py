@@ -25,3 +25,9 @@ contacts_info = (
     'Факс: +7 495 957-32-00\n'
     'Электронная почта: mosenergo@mosenergo.ru'
 )
+
+social_media = (
+    'Присоединяйтесь к нашим сообществам🔥\n\n'
+    'https://t.me/mosenergo_life\n\n'
+    'https://vk.com/mosenergo_official'
+)
