@@ -2,7 +2,7 @@ import asyncio
 import json
 
 from databases import Database
-from sqlalchemy import JSON, Column, Integer, create_engine, select
+from sqlalchemy import JSON, Column, Integer, String, create_engine, select
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import declarative_base
 
@@ -14,6 +14,7 @@ class Vacancy_hh(Base):
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     vacancy_id = Column(Integer, unique=True)
+    region_name = Column(String)
     vacancy_inf = Column(JSON, nullable=True)
 
 DATABASE_URL_CREATE = "sqlite:///./db_depart/vacancies_upd.db"
@@ -22,18 +23,19 @@ database = Database(DATABASE_URL)
 database_update = Database(DATABASE_URL_CREATE)
 
 
-async def save_vacancy(vacancy_id: int, vacancy_inf: dict = None):
+async def save_vacancy(vacancy_id: int, region_name: str, vacancy_inf: dict = None):
     existing_vacancy = await get_vacancy_by_vacancy_id(vacancy_id, database_update)
     if existing_vacancy:
         print(f"Вакансия с vacancy_id {vacancy_id} уже существует.")
         return
 
     query = """
-    INSERT INTO vacancies (vacancy_id,  vacancy_inf)
-    VALUES (:vacancy_id, :vacancy_inf)
+    INSERT INTO vacancies (vacancy_id, region_name, vacancy_inf)
+    VALUES (:vacancy_id, :region_name, :vacancy_inf)
     """
     values = {
         "vacancy_id": vacancy_id,
+        "region_name": region_name,
         "vacancy_inf": json.dumps(vacancy_inf)
     }
     await database_update.execute(query, values)
@@ -41,11 +43,13 @@ async def save_vacancy(vacancy_id: int, vacancy_inf: dict = None):
 
 async def filling_vacancies_to_db(vacancies_data):
     await database_update.connect()
-    
+    vacancy_id = 0
+    # for vacancies in vacancies_data:
+
     for vacancy in vacancies_data:
-        vacancy_id = vacancy.pop('id Вакансии')
-        # vacancy_id, vacancy_inf = vacancy
-        await save_vacancy(vacancy_id=vacancy_id, vacancy_inf=vacancy)
+        region = vacancy.pop('Регион')
+        await save_vacancy(vacancy_id=vacancy_id, region_name=region, vacancy_inf=vacancy)
+        vacancy_id += 1
     
     await database_update.disconnect()
 
@@ -61,19 +65,25 @@ async def get_vacancy_by_vacancy_id(vacancy_id: int, db=database):
     return vacancy
 
 
-async def get_vacancies_by_key_word_module(key_word):
+async def get_vacancies_by_key_word_module(key_word, user_region):
     await database.connect()
     
+
+    select_region_name = user_region 
+    # Добавить функцию чтения названия региона из карточки пользователя
+
     query = select(Vacancy_hh)
     result_list = []
     results = await database.fetch_all(query)
     for vac in results:
         
-        vacancy_name = vac.vacancy_inf['Вакансия']
+        vacancy_region_name = vac.region_name
+        vacancy_name = vac.vacancy_inf['Должность']
         vacancy_req = vac.vacancy_inf['Требования']
         vacancy_resp = vac.vacancy_inf['Обязанности']
+        vacancy_cond = vac.vacancy_inf["Условия"]
 
-        if key_word in (vacancy_name or vacancy_req or vacancy_resp):
+        if key_word in (vacancy_name or vacancy_req or vacancy_resp or vacancy_cond) and vacancy_region_name == select_region_name:
             result_list.append(vac)
 
     await database.disconnect()
@@ -81,20 +91,25 @@ async def get_vacancies_by_key_word_module(key_word):
     return result_list
 
 
-async def get_vacancies_by_keys_list_module(key_words_list):
+async def get_vacancies_by_keys_list_module(key_words_list, user_region):
     await database.connect()
     
+    select_region_name = user_region 
+    # Добавить функцию чтения названия региона из карточки пользователя
+
     query = select(Vacancy_hh)
     result_list = []
     results = await database.fetch_all(query)
     for vac in results:
         for key_word in key_words_list:
         
-            vacancy_name = vac.vacancy_inf['Вакансия']
+            vacancy_region_name = vac.region_name
+            vacancy_name = vac.vacancy_inf['Должность']
             vacancy_req = vac.vacancy_inf['Требования']
             vacancy_resp = vac.vacancy_inf['Обязанности']
+            vacancy_cond = vac.vacancy_inf["Условия"]
 
-            if key_word in (vacancy_name or vacancy_req or vacancy_resp):
+            if key_word in (vacancy_name or vacancy_req or vacancy_resp or vacancy_cond) and vacancy_region_name == select_region_name:
                 result_list.append(vac)
 
     await database.disconnect()
@@ -102,6 +117,7 @@ async def get_vacancies_by_keys_list_module(key_words_list):
     return result_list
 
 
+# Функция временно будет недоступна, поскольку на сайте нет такого пункта в карточках вакансий
 async def get_no_exp_vacancies_module():
     await database.connect()
 
@@ -120,15 +136,26 @@ async def get_no_exp_vacancies_module():
     return result_list
 
 
-async def get_all_vacancies_module():
+async def get_all_vacancies_module(user_region):
     await database.connect()
 
     query = select(Vacancy_hh)
     results = await database.fetch_all(query)
+    result_list = []
+
+    select_region_name = user_region 
+    # Добавить функцию чтения названия региона из карточки пользователя
+
+    for vac in results:
+        
+        vacancy_region_name = vac.region_name
+
+        if vacancy_region_name == select_region_name:
+            result_list.append(vac)
 
     await database.disconnect()
 
-    return results
+    return result_list
 
 
 async def start_create_table(DATABASE_URL):

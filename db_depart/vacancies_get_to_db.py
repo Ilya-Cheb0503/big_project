@@ -5,10 +5,10 @@ from typing import Dict, Optional
 
 import sqlalchemy
 from databases import Database
-from sqlalchemy import (JSON, Column, Integer, String, and_, cast,
+from sqlalchemy import (JSON, Column, Integer, String,
                         create_engine, select)
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import declarative_base, sessionmaker
+from sqlalchemy.orm import declarative_base
 
 Base = declarative_base()
 
@@ -18,6 +18,7 @@ class Vacancy_hh(Base):
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     vacancy_id = Column(Integer, unique=True)
+    region_name = Column(String)
     vacancy_inf = Column(JSON, nullable=True)
 
 DATABASE_URL_CREATE = "sqlite:///./vacancies_upd.db"
@@ -25,18 +26,19 @@ DATABASE_URL = "sqlite:///./vacancies.db"
 database = Database(DATABASE_URL)
 
 
-async def save_vacancy(vacancy_id: int, vacancy_inf: dict = None):
+async def save_vacancy(vacancy_id: int, region_name: str, vacancy_inf: dict = None):
     existing_vacancy = await get_vacancy_by_id(vacancy_id)
     if existing_vacancy:
         print(f"Вакансия с vacancy_id {vacancy_id} уже существует.")
         return
 
     query = """
-    INSERT INTO vacancies (vacancy_id,  vacancy_inf)
-    VALUES (:vacancy_id, :vacancy_inf)
+    INSERT INTO vacancies (vacancy_id, region_name, vacancy_inf)
+    VALUES (:vacancy_id, :region_name, :vacancy_inf)
     """
     values = {
         "vacancy_id": vacancy_id,
+        "region_name": region_name,
         "vacancy_inf": json.dumps(vacancy_inf)
     }
     await database.execute(query, values)

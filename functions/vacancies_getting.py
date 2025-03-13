@@ -14,16 +14,19 @@ from functions.inline_buttons import inline_buttons_packed
 from functions.vacancies_cards import inf_taker
 from settings import logging
 
+from parser.spiders import parse_data
+
 
 from data_holder.data_science import key_keeper
 
-async def get_vacancies_by_keys_list(update, context, keywords):
+async def get_vacancies_by_keys_list(update, context, keywords, user_region):
+    
     try:
-        result = await get_vacancies_by_keys_list_module(keywords)
+        result = await get_vacancies_by_keys_list_module(keywords, user_region)
     
     except Exception as error:
         sleep(5)
-        result = await get_vacancies_by_keys_list_module(keywords)
+        result = await get_vacancies_by_keys_list_module(keywords, user_region)
     
     else:
         empty_list = await check_for_empty_list(result)
@@ -61,16 +64,16 @@ async def get_no_exp_vacancies(update, context):
         await inline_buttons_packed(update, context, result)
 
 
-async def get_vacancies_by_key_word(update, context, key_word):
+async def get_vacancies_by_key_word(update, context, key_word, user_region):
 
     await key_keeper(key_word)
 
     try:
-        result = await get_vacancies_by_key_word_module(key_word)
+        result = await get_vacancies_by_key_word_module(key_word, user_region)
 
     except Exception as error:
         sleep(5)
-        result = await get_vacancies_by_key_word_module(key_word)
+        result = await get_vacancies_by_key_word_module(key_word, user_region)
 
     else:
         empty_list = await check_for_empty_list(result)
@@ -86,13 +89,13 @@ async def get_vacancies_by_key_word(update, context, key_word):
         await inline_buttons_packed(update, context, result)
             
 
-async def get_all_company_vacancies(update, context):
+async def get_all_company_vacancies(update, context, user_region):
     try:
-        result = await get_all_vacancies_module()
+        result = await get_all_vacancies_module(user_region)
 
     except Exception as error:
         sleep(5)
-        result = await get_all_vacancies_module()
+        result = await get_all_vacancies_module(user_region)
 
     else:
         empty_list = await check_for_empty_list(result)
@@ -110,28 +113,9 @@ async def get_all_company_vacancies(update, context):
 
 async def update_vacancies_db(page=0, per_page=100):
     
-    logging.info(f'Токен доступа = {ACCESS_TOKEN}')
-    
-    vacancies_url = "https://api.hh.ru/vacancies"
-    headers = {
-        "Authorization": f"Bearer {ACCESS_TOKEN}",
-        "Content-Type": "application/json"
-    }
-    params = {
-        'employer_id': [1279490],
-        "page": page,
-        "per_page": per_page
-    }
-    response = requests.get(vacancies_url, headers=headers, params=params)
-    if response.status_code != 200:
-        logging.error(f"Ошибка при получении списка вакансий: {response.status_code} - {response.text}")
-    else:
-        result = response.json()
-        
-        formatted_json = json.dumps(result['items'], ensure_ascii=False, indent=4)
-        logging.info(f'formatted_json = {formatted_json}\n\n')
-        tight_inf = await inf_taker(result['items'])
-        await filling_vacancies_to_db(tight_inf)
+    url = "https://www.ogk2.ru/karera/"
+    tight_inf = await parse_data(url, None)
+    await filling_vacancies_to_db(tight_inf)
 
 
 async def get_vacancy_count():
