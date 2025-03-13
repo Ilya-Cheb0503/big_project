@@ -87,7 +87,7 @@ async def send_inline_buttons(update: Update, context: ContextTypes.DEFAULT_TYPE
     user_id = update.effective_user.id
 
     vacancy = await get_vacancy_by_vacancy_id(vacancy_id)
-    vacancy_url = vacancy.vacancy_inf['Ссылка на вакансию']
+    # vacancy_url = vacancy.vacancy_inf['Ссылка на вакансию']
     # Создаем инлайн кнопки
     keyboard = [
         [
@@ -98,7 +98,7 @@ async def send_inline_buttons(update: Update, context: ContextTypes.DEFAULT_TYPE
         #     InlineKeyboardButton("Откликнуться через hhru", callback_data=f'{vacancy_id}')
         # ],
         [
-            InlineKeyboardButton("Ссылка на вакансию", callback_data='req_button', url=vacancy_url)
+            # InlineKeyboardButton("Ссылка на вакансию", callback_data='req_button', url=vacancy_url)
         ],
 
         [
