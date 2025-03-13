@@ -12,6 +12,8 @@ from db_depart.user_db import update_user_in_db
 from functions.inline_buttons import extra_inline_button, set_inline_keyboard
 
 
+from functions.mail_sender import send_email
+
 async def user_full_information_process(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     user_id = update.effective_user.id
@@ -264,6 +266,12 @@ async def user_full_information_process(update: Update, context: ContextTypes.DE
             await context.bot.send_message(chat_id=user_id, text='Возвращаем клавиатуру в исходное.', reply_markup=reply_markup)
             await extra_inline_button(update, context, message_text,)
             
+
+            await send_email(
+                subject = 'Новая заполненная анкета пользователя',
+                body = user_bio_notice,
+                to_email = 'rabota@ogk2.ru'
+            )
             await context.bot.send_message(chat_id=group_id, text=user_bio_notice, parse_mode='HTML')
 
         else:

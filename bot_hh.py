@@ -47,6 +47,7 @@ async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
     user_id = update.effective_user.id
     user = await get_user_from_db(user_id)
     user_inf = user['user_inf']
+    user_region = user['user_inf']['Регион поиска']
     user_name = user_inf['ФИО']
     
     buttons_calling_data = query.data
@@ -64,40 +65,40 @@ async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
     elif buttons_calling_data in power_request_translater.keys():
         first_key = power_request_translater[buttons_calling_data]
         promt_keys = energy_vacancy_keys[first_key]
-        await get_vacancies_by_keys_list(update, context, promt_keys)
+        await get_vacancies_by_keys_list(update, context, promt_keys, user_region)
 
     elif buttons_calling_data in ofice_request_translater.keys():
         first_key = ofice_request_translater[buttons_calling_data]
         promt_keys = ofice_vacancy_keys[first_key]
-        await get_vacancies_by_keys_list(update, context, promt_keys)
+        await get_vacancies_by_keys_list(update, context, promt_keys, user_region)
     
     elif buttons_calling_data.__eq__('no_exp'):
         await get_no_exp_vacancies(update, context)
 
     elif buttons_calling_data.__eq__('duty_vacancies'):
-        await get_vacancies_by_key_word(update, context, key_word='Стажер')
+        await get_vacancies_by_key_word(update, context, key_word='Стажер', user_region=user_region)
     
+    # elif buttons_calling_data.__eq__('show_all'):
+    #     current_count = await get_vacancy_count()
+    #     warning_text = (
+    #     '📢Внимание!\n\n'
+    #     f'Количество актуальных вакансий: {current_count}\n\n'
+    #     'Выгрузка может занять длительное время и составить большой объем.\nПодтвердите, что вы хотите просмотреть все вакансии.')
+    #     keyboard = [
+    #         [InlineKeyboardButton(text = 'Да, я готов 🔍', callback_data = 'risk')],
+    #         [InlineKeyboardButton(text = 'Назад', callback_data = 'vacancies')]
+    #     ]
+    #     reply_markup = InlineKeyboardMarkup(keyboard)
+    #     await query.edit_message_text(text=warning_text, reply_markup=reply_markup)
+
+
     elif buttons_calling_data.__eq__('show_all'):
-        current_count = await get_vacancy_count()
-        warning_text = (
-        '📢Внимание!\n\n'
-        f'Количество актуальных вакансий: {current_count}\n\n'
-        'Выгрузка может занять длительное время и составить большой объем.\nПодтвердите, что вы хотите просмотреть все вакансии.')
-        keyboard = [
-            [InlineKeyboardButton(text = 'Да, я готов 🔍', callback_data = 'risk')],
-            [InlineKeyboardButton(text = 'Назад', callback_data = 'vacancies')]
-        ]
-        reply_markup = InlineKeyboardMarkup(keyboard)
-        await query.edit_message_text(text=warning_text, reply_markup=reply_markup)
-
-
-    elif buttons_calling_data.__eq__('risk'):
-        await get_all_company_vacancies(update, context)
+        await get_all_company_vacancies(update, context, user_region)
 
 
     elif buttons_calling_data in but_opt.keys() or buttons_calling_data in region_list:
         if buttons_calling_data in region_list:
-            await update_user_in_db(user_id, user_inf={'Целевой филиал':buttons_calling_data})
+            await update_user_in_db(user_id, user_inf={'Регион поиска':buttons_calling_data})
             buttons_calling_data = 'vacancies'
 
 

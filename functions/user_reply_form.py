@@ -11,6 +11,8 @@ from db_depart.user_db import get_user, update_user_in_db
 from functions.inline_buttons import extra_inline_button, set_inline_keyboard
 from pwd_generator import get_current_directory
 
+from new_function.mail_sender import send_email
+
 
 async def user_form_information_process(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user_id = update.effective_user.id
@@ -302,82 +304,6 @@ async def user_form_information_process(update: Update, context: ContextTypes.DE
         ]
         reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
         await context.bot.send_message(chat_id=user_id, text=text, reply_markup=reply_markup)
-    
-
-
-    # elif current_step.__eq__('Проверка анкеты'):
-
-    #     keyboard = [
-    #         ['Главное меню'],
-    #         ]
-    #     reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True) 
-
-    #     if 'Образование' in user_inf_db:
-    #         if current_text.__eq__('Продолжить с моими данными'):
-    #             context.user_data.pop('Запрос анкетных данных')
-            
-    #             final_text = (
-    #                 'Спасибо, что откликнулись! ☺️ Наши специалисты свяжутся с вами в течение 7 дней.\n\n'
-    #                 'Если вам не терпится связаться с нами, то напишите нам на почту rabota@mosenergo.ru\n\n'
-    #                 'Или позвоните по номеру +7 (495) 957-19-57, доб. 4006'
-    #             )
-    #             user_inf = user['user_inf']
-    #             user_name = user_inf['ФИО']
-    #             vacancion_name = context.user_data['vacancy_name']
-    #             note_text = f'Пользователь: {user_name}\nОткликнулся на вакансию: {vacancion_name}'
-
-    #             await context.bot.send_message(chat_id=user_id, text='Возвращаемся в главное меню.', reply_markup=reply_markup)
-    #             await extra_inline_button(update, context, final_text,)
-    #             await context.bot.send_message(chat_id=group_id, text=note_text)
-                
-    #             if 'pdf_path' in context.user_data:
-    #                 pdf_path = context.user_data['pdf_path']
-    #                 await send_pdf(update, context, pdf_path=pdf_path, chat_id=group_id, user_name=user_name)
-
-    #     elif current_text.__eq__('Заполнить заново'):
-
-    #         context.user_data['Запрос анкетных данных'] = 'Подтверждение старта'
-
-    #         text_wait = (
-    #         'Просто отвечайте на вопросы бота,\nа он бережно соберет Ваши данные в анкету 📠'
-    #     )
-
-    #         keyboard = [
-    #             ['Согласен с политикой обработки персональных данных ✅'],
-    #             ['Назад']
-    #         ]
-
-    #         reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
-    #         await context.bot.send_message(chat_id=user_id, text=text_wait, reply_markup=reply_markup)
-
-    #     elif current_text.__eq__('Согласен с политикой обработки персональных данных ✅'):
-    #         context.user_data['Запрос анкетных данных'] = 'Подтверждение старта'
-    #         text = 'Для начала укажите в сообщении ваши ФИО:'
-    #         keyboard = [
-    #             ['Назад']
-    #         ]
-    #         reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
-
-
-    #     else:
-    #         context.user_data['Запрос анкетных данных'] = 'Запуск анкетирования'
-    #         context.user_data.pop('Запрос анкетных данных')
-            
-    #         admin_check = user_id in admins_id
-    #         if admin_check:
-    #             context.user_data['admin_status'] = True
-    #             buttons_list = admin_main_menu_keyboard
-    #         else:
-    #             buttons_list = user_main_menu_keyboard
-
-    #         keyboard = [
-    #             ['Главное меню'],
-    #         ]
-    #         reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
-    #         await context.bot.send_message(chat_id=user_id, text='Возвращаем вас в главное меню', reply_markup=reply_markup)
-    #         await set_inline_keyboard(update, context, buttons_list = buttons_list, message_text = welcome_text)
-
-
 
 
     elif current_step.__eq__('Утверждение найденной анкеты'):
@@ -405,10 +331,17 @@ async def user_form_information_process(update: Update, context: ContextTypes.DE
 
             await context.bot.send_message(chat_id=user_id, text='Возвращаемся в главное меню.', reply_markup=reply_markup)
             await extra_inline_button(update, context, final_text,)
+
+            await send_email(
+                subject = 'Отклик на вакансию',
+                body = note_text,
+                to_email = 'rabota@ogk2.ru'
+            )
             await context.bot.send_message(chat_id=group_id, text=note_text)
             
             if 'pdf_path' in context.user_data:
                 pdf_path = context.user_data['pdf_path']
+                # Если есть pdf файл, то мы прикрепляем его к сообщению, а не отправляем отдельно
                 await send_pdf(update, context, pdf_path=pdf_path, chat_id=group_id, user_name=user_name)
 
         elif current_text.__eq__('Заполнить заново'):
@@ -532,9 +465,16 @@ async def user_form_information_process(update: Update, context: ContextTypes.DE
             vacancion_name = context.user_data['vacancy_name']
             note_text = f'Пользователь: {user_name}\nОткликнулся на вакансию: {vacancion_name}'
 
+
+            await send_email(
+                subject = 'Отклик на вакансию',
+                body = note_text,
+                to_email = 'rabota@ogk2.ru'
+            )
             await context.bot.send_message(chat_id=group_id, text=note_text)
             if 'pdf_path' in context.user_data:
                 pdf_path = context.user_data['pdf_path']
+                # Та же тема с прикреплением документа и отправкой одного смс, а не двух, как делали в телеграмм чате
                 await send_pdf(update, context, pdf_path=pdf_path, chat_id=group_id, user_name=user_name)
 
         else:
