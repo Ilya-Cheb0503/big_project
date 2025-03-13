@@ -11,7 +11,7 @@ from db_depart.user_db import get_user, update_user_in_db
 from functions.inline_buttons import extra_inline_button, set_inline_keyboard
 from pwd_generator import get_current_directory
 
-from new_function.mail_sender import send_email
+from functions.mail_sender import send_email
 
 
 async def user_form_information_process(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -121,9 +121,9 @@ async def user_form_information_process(update: Update, context: ContextTypes.DE
             ]
 
             project_folder = await get_current_directory()
-            pdf_path = project_folder + '/constants/soglasie-na-obrabotku-dannykh.pdf'
+            pdf_path = project_folder + '/constants/rules.docx'
             with open(pdf_path, 'rb') as pdf_file:
-                await context.bot.send_document(chat_id=user_id, document=pdf_file, filename='Согласие на обработку персональных данных.pdf')
+                await context.bot.send_document(chat_id=user_id, document=pdf_file, filename='Согласие на обработку персональных данных.docx')
             await context.bot.send_message(chat_id=user_id, text=text_wait, reply_markup=reply_markup)
 
             reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
@@ -360,9 +360,9 @@ async def user_form_information_process(update: Update, context: ContextTypes.DE
             reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
             
             project_folder = await get_current_directory()
-            pdf_path = project_folder + '/constants/soglasie-na-obrabotku-dannykh.pdf'
+            pdf_path = project_folder + '/constants/rules.docx' 
             with open(pdf_path, 'rb') as pdf_file:
-                await context.bot.send_document(chat_id=user_id, document=pdf_file, filename='Согласие на обработку персональных данных.pdf')
+                await context.bot.send_document(chat_id=user_id, document=pdf_file, filename='Согласие на обработку персональных данных.docx')  
             await context.bot.send_message(chat_id=user_id, text=text_wait, reply_markup=reply_markup)
 
     elif next_step.__eq__('email'):
