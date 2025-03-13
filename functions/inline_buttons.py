@@ -41,7 +41,7 @@ async def inline_buttons_packed(update, context, result):
 async def next_or_stop(update, context, vacancy_count, last_watched_count, new_watched_count, left_packing):
     summ_watched = last_watched_count+new_watched_count
     options_ask = [
-        ['Показать еще', 'more_more'],
+        ['Продолжить', 'more_more'],
         ['Достаточно', 'main_menu'],
     ]
     ask_text = f'Всего вакансий: {vacancy_count}\n'
@@ -82,7 +82,7 @@ async def one_more_dose(update, context):
         )
 
 
-async def send_inline_buttons(update: Update, context: ContextTypes.DEFAULT_TYPE, message_text, vacancy_id) -> None:
+async def git send_inline_buttons(update: Update, context: ContextTypes.DEFAULT_TYPE, message_text, vacancy_id) -> None:
     logging.info('РЕГИСТРАЦИЯ КНОПОК')
     user_id = update.effective_user.id
 
