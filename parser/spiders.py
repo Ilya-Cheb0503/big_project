@@ -2,7 +2,7 @@ import asyncio
 from playwright.async_api import async_playwright
 import json
 import os
-# from pwd_generator import get_current_directory
+from pwd_generator import get_current_directory
 
 import os
 
@@ -111,9 +111,7 @@ vacancies_info_file = '/data_holder/vacancies_info.json'
 
 async def load_vacancies_keys():
     
-    # project_folder = await get_current_directory()
-    
-    project_folder = 'C:/dev_py/hh_bit/OGK_Edition/big_project'
+    project_folder = await get_current_directory()
     vacancies_info_path = project_folder + vacancies_info_file
     
     if os.path.exists(vacancies_info_path):
@@ -127,8 +125,7 @@ async def load_vacancies_keys():
 async def save_vacancies_info(vacancies_info):
     # logging.info("Сохранение уведомлений в файл.")
     
-    # project_folder = await get_current_directory()
-    project_folder = 'C:/dev_py/hh_bit/OGK_Edition/big_project'
+    project_folder = await get_current_directory()
     vacancies_info_path = project_folder + vacancies_info_file
     
     with open(vacancies_info_path, 'w', encoding="utf-8") as file:
@@ -140,9 +137,7 @@ async def save_vacancies_info(vacancies_info):
 async def region_determ(contact_info):
     region_name = None
     for fio in fio_reg.keys():
-        print(f'FIO = {fio}\ninformation = {contact_info[0]}\n\n')
         if fio in contact_info[0]:
-            print('right\n\n')
             region_name = fio_reg[fio]
             return region_name
 
