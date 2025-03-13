@@ -11,25 +11,25 @@ from telegram import (InlineKeyboardButton, InlineKeyboardMarkup,
 from telegram.ext import (Application, CallbackQueryHandler, CommandHandler,
                           ContextTypes, MessageHandler, filters)
 
-from constants.some_constants import admins_id, group_id
 from constants.keyboards import (admin_main_menu_keyboard,
                                  user_main_menu_keyboard)
 from constants.messages_text import (inf_contacts_text, welcome_text,
                                      welcome_two)
 from constants.options_inline_list import but_opt
+from constants.regions_data import region_list
+from constants.some_constants import admins_id, group_id
 from constants.vacancies_keys import (energy_vacancy_keys,
                                       ofice_request_translater,
                                       ofice_vacancy_keys,
                                       power_request_translater)
-from constants.regions_data import region_list
 from db_depart.bd_update import create_rename_and_delete
 from db_depart.new_module import get_vacancy_by_vacancy_id
 from db_depart.user_db import (creat_user_in_db, get_user_from_db,
                                update_user_in_db)
-from functions.user_data_form import list_waiting
-from functions.inline_buttons import set_inline_keyboard, one_more_dose
+from functions.inline_buttons import one_more_dose, set_inline_keyboard
 from functions.tg_mailman import send_messages
-from functions.user_data_form import user_full_information_process
+from functions.user_data_form import (list_waiting,
+                                      user_full_information_process)
 from functions.user_reply_form import user_form_information_process
 from functions.vacancies_getting import (get_all_company_vacancies,
                                          get_no_exp_vacancies,
@@ -47,7 +47,8 @@ async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
     user_id = update.effective_user.id
     user = await get_user_from_db(user_id)
     user_inf = user['user_inf']
-    user_region = user['user_inf']['Регион поиска']
+    if 'Регион поиска' in user['user_inf']:
+        user_region = user['user_inf']['Регион поиска']
     user_name = user_inf['ФИО']
     
     buttons_calling_data = query.data
@@ -241,11 +242,29 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
     elif 'Запрос анкетных данных' in context.user_data:
         await user_form_information_process(update, context)
 
-    elif current_text.lower().__eq__('без опыта'):
-        logging.info('БЕЗ ОПЫТА')
-        await get_no_exp_vacancies(update, context)
+    # elif current_text.lower().__eq__('без опыта'):
+    #     logging.info('БЕЗ ОПЫТА')
+    #     await get_no_exp_vacancies(update, context)
     else:
-        await get_vacancies_by_key_word(update, context, current_text)
+        user = await get_user_from_db(user_id)
+        if 'Регион поиска' in user['user_inf']:
+            user_region = user['user_inf']['Регион поиска']
+            await get_vacancies_by_key_word(update, context, current_text, user_region)
+        else:
+            message_text, buttons_set = but_opt['region']
+
+            keyboard = []
+            for button in buttons_set:
+                
+                button_name, button_data = button
+                keyboard.append(
+                    [InlineKeyboardButton(text = button_name, callback_data = button_data)]
+                )
+            reply_markup = InlineKeyboardMarkup(keyboard)
+
+            context.bot.send_message(chat_id=user_id, text=message_text, parse_mode='Markdown', reply_markup=reply_markup)
+
+        
 
 
 # Функция для обработки команды /start
