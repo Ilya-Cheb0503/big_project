@@ -82,7 +82,7 @@ async def one_more_dose(update, context):
         )
 
 
-async def git send_inline_buttons(update: Update, context: ContextTypes.DEFAULT_TYPE, message_text, vacancy_id) -> None:
+async def send_inline_buttons(update: Update, context: ContextTypes.DEFAULT_TYPE, message_text, vacancy_id) -> None:
     logging.info('РЕГИСТРАЦИЯ КНОПОК')
     user_id = update.effective_user.id
 
