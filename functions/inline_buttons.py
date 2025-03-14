@@ -3,11 +3,11 @@ from time import sleep
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
 from telegram.ext import ContextTypes
 
-from functions.vacancies_cards import message_creater
+from db_depart.new_module import get_vacancy_by_vacancy_id
 from functions.special_functions import packer
+from functions.vacancies_cards import message_creater
 from settings import logging
 
-from db_depart.new_module import get_vacancy_by_vacancy_id
 
 async def inline_buttons_packed(update, context, result):
 

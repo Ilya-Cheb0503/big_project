@@ -4,20 +4,18 @@ from time import sleep
 import requests
 
 from constants.constants import ACCESS_TOKEN
+from data_holder.data_science import key_keeper
 from db_depart.new_module import (filling_vacancies_to_db,
                                   get_all_vacancies_module,
                                   get_no_exp_vacancies_module,
                                   get_vacancies_by_key_word_module,
                                   get_vacancies_by_keys_list_module)
-from functions.special_functions import check_for_empty_list
 from functions.inline_buttons import inline_buttons_packed
+from functions.special_functions import check_for_empty_list
 from functions.vacancies_cards import inf_taker
+from parser.spiders import parse_data
 from settings import logging
 
-from parser.spiders import parse_data
-
-
-from data_holder.data_science import key_keeper
 
 async def get_vacancies_by_keys_list(update, context, keywords, user_region):
     

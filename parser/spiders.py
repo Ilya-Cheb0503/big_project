@@ -1,10 +1,10 @@
 import asyncio
-from playwright.async_api import async_playwright
 import json
 import os
-from pwd_generator import get_current_directory
 
-import os
+from playwright.async_api import async_playwright
+
+from pwd_generator import get_current_directory
 
 
 async def parse_data(url, output_file):
@@ -85,7 +85,6 @@ async def parse_data(url, output_file):
                                 contact_data.append(text.strip())  # Удаляем лишние пробелы
                                 region_name = await region_determ(contact_data)
                                 
-                        print(f'contact_data = {contact_data}\nregion_name = {region_name}\n\n')
                         card_data["Контактное лицо"] = "\n".join(contact_data)
                         card_data["Регион"] = region_name
                 except Exception as e:

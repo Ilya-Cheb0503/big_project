@@ -3,15 +3,14 @@ import logging
 from telegram import ReplyKeyboardMarkup, Update
 from telegram.ext import ContextTypes
 
-from constants.some_constants import admins_id, group_id
 from constants.keyboards import (admin_main_menu_keyboard,
                                  user_main_menu_keyboard)
 from constants.messages_text import welcome_text
+from constants.some_constants import admins_id, group_id
 from db_depart.user_db import get_user, update_user_in_db
 from functions.inline_buttons import extra_inline_button, set_inline_keyboard
-from pwd_generator import get_current_directory
-
 from functions.mail_sender import send_email
+from pwd_generator import get_current_directory
 
 
 async def user_form_information_process(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -332,11 +331,11 @@ async def user_form_information_process(update: Update, context: ContextTypes.DE
             await context.bot.send_message(chat_id=user_id, text='Возвращаемся в главное меню.', reply_markup=reply_markup)
             await extra_inline_button(update, context, final_text,)
 
-            await send_email(
-                subject = 'Отклик на вакансию',
-                body = note_text,
-                to_email = 'rabota@ogk2.ru'
-            )
+            # await send_email(
+            #     subject = 'Отклик на вакансию',
+            #     body = note_text,
+            #     to_email = 'rabota@ogk2.ru'
+            # )
             await context.bot.send_message(chat_id=group_id, text=note_text)
             
             if 'pdf_path' in context.user_data:
@@ -466,11 +465,11 @@ async def user_form_information_process(update: Update, context: ContextTypes.DE
             note_text = f'Пользователь: {user_name}\nОткликнулся на вакансию: {vacancion_name}'
 
 
-            await send_email(
-                subject = 'Отклик на вакансию',
-                body = note_text,
-                to_email = 'rabota@ogk2.ru'
-            )
+            # await send_email(
+            #     subject = 'Отклик на вакансию',
+            #     body = note_text,
+            #     to_email = 'rabota@ogk2.ru'
+            # )
             await context.bot.send_message(chat_id=group_id, text=note_text)
             if 'pdf_path' in context.user_data:
                 pdf_path = context.user_data['pdf_path']

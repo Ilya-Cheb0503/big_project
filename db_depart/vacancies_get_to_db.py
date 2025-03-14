@@ -5,8 +5,7 @@ from typing import Dict, Optional
 
 import sqlalchemy
 from databases import Database
-from sqlalchemy import (JSON, Column, Integer, String,
-                        create_engine, select)
+from sqlalchemy import JSON, Column, Integer, String, create_engine, select
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import declarative_base
 
