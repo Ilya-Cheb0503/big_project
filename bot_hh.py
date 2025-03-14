@@ -262,7 +262,7 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
                 )
             reply_markup = InlineKeyboardMarkup(keyboard)
 
-            context.bot.send_message(chat_id=user_id, text=message_text, parse_mode='Markdown', reply_markup=reply_markup)
+            await context.bot.send_message(chat_id=user_id, text=message_text, parse_mode='Markdown', reply_markup=reply_markup)
 
         
 
