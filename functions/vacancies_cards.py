@@ -162,7 +162,7 @@ async def message_creater(vacancy):
 
     f'🎓 <u><b>Требования</b></u>:\n{req_text}\n\n'
 
-    f'🤝🏻 <u><b>Условия</b></u>:\n{cond_text}\n\n'
+    # f'🤝🏻 <u><b>Условия</b></u>:\n{cond_text}\n\n'
 
     f'💰 <u><b>Оплата</b></u>:\n'
     f'{value_defolt_text}\n\n'
