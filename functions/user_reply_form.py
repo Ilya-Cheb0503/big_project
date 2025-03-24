@@ -123,7 +123,6 @@ async def user_form_information_process(update: Update, context: ContextTypes.DE
             pdf_path = project_folder + '/constants/rules.docx'
             with open(pdf_path, 'rb') as pdf_file:
                 await context.bot.send_document(chat_id=user_id, document=pdf_file, filename='Согласие на обработку персональных данных.docx')
-            await context.bot.send_message(chat_id=user_id, text=text_wait, reply_markup=reply_markup)
 
             reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
             await context.bot.send_message(chat_id=user_id, text=text_wait, reply_markup=reply_markup)
