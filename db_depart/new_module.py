@@ -78,7 +78,7 @@ async def get_vacancies_by_key_word_module(key_word, user_region):
     for vac in results:
         
         vacancy_region_name = vac.region_name
-        vacancy_name = vac.vacancy_inf['Должность']
+        vacancy_name = vac.vacancy_inf['Вакансия']
         vacancy_req = vac.vacancy_inf['Требования']
         vacancy_resp = vac.vacancy_inf['Обязанности']
         vacancy_cond = vac.vacancy_inf["Условия"]
@@ -104,7 +104,7 @@ async def get_vacancies_by_keys_list_module(key_words_list, user_region):
         for key_word in key_words_list:
         
             vacancy_region_name = vac.region_name
-            vacancy_name = vac.vacancy_inf['Должность']
+            vacancy_name = vac.vacancy_inf['Вакансия']
             vacancy_req = vac.vacancy_inf['Требования']
             vacancy_resp = vac.vacancy_inf['Обязанности']
             vacancy_cond = vac.vacancy_inf["Условия"]
