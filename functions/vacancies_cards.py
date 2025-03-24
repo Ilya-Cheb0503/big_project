@@ -148,12 +148,12 @@ async def inf_taker(full_information):
 async def message_creater(vacancy):
 
 
-    vacancy_name = vacancy["Должность"]
+    vacancy_name = vacancy["Вакансия"]
     resp_text = vacancy["Обязанности"] 
     req_text = vacancy["Требования"] 
     cond_text = vacancy["Условия"]
 
-    value_defolt_text = 'Размер заработной платы, условия премированию обсуждаются на собеседовании.'
+    value_defolt_text = 'Размер заработной платы, условия премирования обсуждаются на собеседовании.'
 
     vacancy_text = (
     f'<b>Вакансия: {vacancy_name}</b>\n\n'
