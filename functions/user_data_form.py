@@ -266,11 +266,11 @@ async def user_full_information_process(update: Update, context: ContextTypes.DE
             await extra_inline_button(update, context, message_text,)
             
 
-            # await send_email(
-            #     subject = 'Новая заполненная анкета пользователя',
-            #     body = user_bio_notice,
-            #     to_email = 'rabota@ogk2.ru'
-            # )
+            await send_email(
+                subject = 'Новая заполненная анкета пользователя',
+                body = user_bio_notice,
+                to_email = 'rabota@ogk2.ru'
+            )
             await context.bot.send_message(chat_id=group_id, text=user_bio_notice, parse_mode='HTML')
 
         else:

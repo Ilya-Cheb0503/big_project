@@ -243,8 +243,8 @@ async def user_form_information_process(update: Update, context: ContextTypes.DE
         # Получаем файл
         new_file = await context.bot.get_file(document.file_id)
         project_pwd = await get_current_directory()
-        file_path = f"downloads/{file_name}.pdf"
-        context.user_data['pdf_path'] = project_pwd+file_path
+        file_path = f"downloads/{file_name}"
+        context.user_data['pdf_path'] = f"{project_pwd}/{file_path}"
 
         await new_file.download_to_drive(file_path)
         
@@ -330,11 +330,15 @@ async def user_form_information_process(update: Update, context: ContextTypes.DE
             await context.bot.send_message(chat_id=user_id, text='Возвращаемся в главное меню.', reply_markup=reply_markup)
             await extra_inline_button(update, context, final_text,)
 
-            # await send_email(
-            #     subject = 'Отклик на вакансию',
-            #     body = note_text,
-            #     to_email = 'rabota@ogk2.ru'
-            # )
+            pdf_path = None
+            if 'pdf_path' in context.user_data:
+                pdf_path = context.user_data['pdf_path']
+            await send_email(
+                subject = 'Отклик на вакансию',
+                body = note_text,
+                to_email = 'rabota@ogk2.ru',
+                pdf_file = pdf_path
+            )
             await context.bot.send_message(chat_id=group_id, text=note_text)
             
             if 'pdf_path' in context.user_data:
@@ -464,11 +468,15 @@ async def user_form_information_process(update: Update, context: ContextTypes.DE
             note_text = f'Пользователь: {user_name}\nОткликнулся на вакансию: {vacancion_name}'
 
 
-            # await send_email(
-            #     subject = 'Отклик на вакансию',
-            #     body = note_text,
-            #     to_email = 'rabota@ogk2.ru'
-            # )
+            pdf_path = None
+            if 'pdf_path' in context.user_data:
+                pdf_path = context.user_data['pdf_path']
+            await send_email(
+                subject = 'Отклик на вакансию',
+                body = note_text,
+                to_email = 'rabota@ogk2.ru',
+                pdf_file = pdf_path
+            )
             await context.bot.send_message(chat_id=group_id, text=note_text)
             if 'pdf_path' in context.user_data:
                 pdf_path = context.user_data['pdf_path']
