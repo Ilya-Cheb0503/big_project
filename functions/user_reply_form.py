@@ -323,14 +323,14 @@ async def user_form_information_process(update: Update, context: ContextTypes.DE
             user_inf = user['user_inf']
             user_name = user_inf['ФИО']
             vacancion_name = context.user_data['vacancy_name']
-            
+
             user_bio = (
-                f'<b>ФИО:</b>\n{full_name}\n\n'
-                f'<b>Номер телефона:</b>\n{phone}\n\n'
-                f'<b>Email:</b>\n{email}\n\n'
-                f'<b>Должность:</b>\n{work}\n\n'
-                f'<b>Опыт работы:</b>\n{exp}\n\n'
-                f'<b>Образование:</b>\n{educ}\n\n'
+                f'ФИО: {full_name}\n'
+                f'Номер телефона: {phone}\n'
+                f'Email: {email}\n'
+                f'Должность: {work}\n'
+                f'Опыт работы: {exp}\n'
+                f'Образование: {educ}\n'
                 )
 
 
@@ -485,12 +485,12 @@ async def user_form_information_process(update: Update, context: ContextTypes.DE
             educ = user_inf['Образование']
             
             user_bio = (
-                f'<b>ФИО:</b>\n{full_name}\n\n'
-                f'<b>Номер телефона:</b>\n{phone}\n\n'
-                f'<b>Email:</b>\n{email}\n\n'
-                f'<b>Должность:</b>\n{work}\n\n'
-                f'<b>Опыт работы:</b>\n{exp}\n\n'
-                f'<b>Образование:</b>\n{educ}\n\n'
+                f'ФИО: {full_name}\n'
+                f'Номер телефона: {phone}\n'
+                f'Email: {email}\n'
+                f'Должность: {work}\n'
+                f'Опыт работы: {exp}\n'
+                f'Образование: {educ}\n'
                 )
 
 
