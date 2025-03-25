@@ -323,7 +323,18 @@ async def user_form_information_process(update: Update, context: ContextTypes.DE
             user_inf = user['user_inf']
             user_name = user_inf['ФИО']
             vacancion_name = context.user_data['vacancy_name']
-            note_text = f'Пользователь: {user_name}\nОткликнулся на вакансию: {vacancion_name}'
+            
+            user_bio = (
+                f'<b>ФИО:</b>\n{full_name}\n\n'
+                f'<b>Номер телефона:</b>\n{phone}\n\n'
+                f'<b>Email:</b>\n{email}\n\n'
+                f'<b>Должность:</b>\n{work}\n\n'
+                f'<b>Опыт работы:</b>\n{exp}\n\n'
+                f'<b>Образование:</b>\n{educ}\n\n'
+                )
+
+
+            note_text = f'Пользователь: {user_name}\nОткликнулся на вакансию: {vacancion_name}\n\nПользовательские данные:\n{user_bio}'
 
                        
 
@@ -465,7 +476,25 @@ async def user_form_information_process(update: Update, context: ContextTypes.DE
             user_inf = user['user_inf']
             user_name = user_inf['ФИО']
             vacancion_name = context.user_data['vacancy_name']
-            note_text = f'Пользователь: {user_name}\nОткликнулся на вакансию: {vacancion_name}'
+
+
+            phone = user_inf['Номер телефона']
+            email = user_inf['email']
+            work = user_inf['Должность']
+            exp = user_inf['Опыт работы']
+            educ = user_inf['Образование']
+            
+            user_bio = (
+                f'<b>ФИО:</b>\n{full_name}\n\n'
+                f'<b>Номер телефона:</b>\n{phone}\n\n'
+                f'<b>Email:</b>\n{email}\n\n'
+                f'<b>Должность:</b>\n{work}\n\n'
+                f'<b>Опыт работы:</b>\n{exp}\n\n'
+                f'<b>Образование:</b>\n{educ}\n\n'
+                )
+
+
+            note_text = f'Пользователь: {user_name}\nОткликнулся на вакансию: {vacancion_name}\n\nПользовательские данные:\n{user_bio}'
 
 
             pdf_path = None
