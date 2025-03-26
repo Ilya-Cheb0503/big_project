@@ -325,7 +325,7 @@ async def user_form_information_process(update: Update, context: ContextTypes.DE
             vacancion_name = context.user_data['vacancy_name']
 
             user_bio = (
-                f'ФИО: {full_name}\n'
+                f'ФИО: {user_name}\n'
                 f'Номер телефона: {phone}\n'
                 f'Email: {email}\n'
                 f'Должность: {work}\n'
@@ -485,7 +485,7 @@ async def user_form_information_process(update: Update, context: ContextTypes.DE
             educ = user_inf['Образование']
             
             user_bio = (
-                f'ФИО: {full_name}\n'
+                f'ФИО: {user_name}\n'
                 f'Номер телефона: {phone}\n'
                 f'Email: {email}\n'
                 f'Должность: {work}\n'
