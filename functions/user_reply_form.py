@@ -324,6 +324,12 @@ async def user_form_information_process(update: Update, context: ContextTypes.DE
             user_name = user_inf['ФИО']
             vacancion_name = context.user_data['vacancy_name']
 
+            phone = user_inf['Номер телефона']
+            email = user_inf['email']
+            work = user_inf['Должность']
+            exp = user_inf['Опыт работы']
+            educ = user_inf['Образование']
+
             user_bio = (
                 f'ФИО: {user_name}\n'
                 f'Номер телефона: {phone}\n'
@@ -452,12 +458,6 @@ async def user_form_information_process(update: Update, context: ContextTypes.DE
             context.user_data.pop('Запрос анкетных данных')
             
             user_inf = context.user_data['information_form']
-            full_name = user_inf['ФИО']
-            phone = user_inf['Номер телефона']
-            email = user_inf['email']
-            work = user_inf['Должность']
-            exp = user_inf['Опыт работы']
-            educ = user_inf['Образование']
             final_text = (
                 'Спасибо, что откликнулись! ☺️ Наши специалисты свяжутся с вами в течение 7 дней.\n\n'
                 'Если вам не терпится связаться с нами, то напишите нам на почту rabota@ogk2.ru\n\n'
