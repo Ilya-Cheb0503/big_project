@@ -362,6 +362,8 @@ async def user_form_information_process(update: Update, context: ContextTypes.DE
                 pdf_path = context.user_data['pdf_path']
                 # Если есть pdf файл, то мы прикрепляем его к сообщению, а не отправляем отдельно
                 await send_pdf(update, context, pdf_path=pdf_path, chat_id=group_id, user_name=user_name)
+            
+                context.user_data.pop('pdf_path')
 
         elif current_text.__eq__('Заполнить заново'):
 
@@ -511,6 +513,8 @@ async def user_form_information_process(update: Update, context: ContextTypes.DE
                 pdf_path = context.user_data['pdf_path']
                 # Та же тема с прикреплением документа и отправкой одного смс, а не двух, как делали в телеграмм чате
                 await send_pdf(update, context, pdf_path=pdf_path, chat_id=group_id, user_name=user_name)
+            
+                context.user_data.pop('pdf_path')
 
         else:
             context.user_data['Запрос анкетных данных'] = 'ФИО'
