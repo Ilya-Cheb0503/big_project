@@ -330,7 +330,10 @@ async def user_form_information_process(update: Update, context: ContextTypes.DE
             exp = user_inf['Опыт работы']
             educ = user_inf['Образование']
 
+            place = user_inf['Регион поиска']
+
             user_bio = (
+                f'Регион поиска: {place}\n\n'
                 f'ФИО: {user_name}\n'
                 f'Номер телефона: {phone}\n'
                 f'Email: {email}\n'
@@ -486,8 +489,10 @@ async def user_form_information_process(update: Update, context: ContextTypes.DE
             exp = user_inf['Опыт работы']
             educ = user_inf['Образование']
             
+            place = user_inf['Регион поиска']
+
             user_bio = (
-                f'ФИО: {user_name}\n'
+                f'Регион поиска: {place}\n\n'
                 f'Номер телефона: {phone}\n'
                 f'Email: {email}\n'
                 f'Должность: {work}\n'
