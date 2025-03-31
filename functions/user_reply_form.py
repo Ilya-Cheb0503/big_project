@@ -295,7 +295,7 @@ async def user_form_information_process(update: Update, context: ContextTypes.DE
         context.user_data['pdf_path'] = project_pwd+file_path
         await new_file.download_to_drive(file_path)
 
-        text = 'Резюме успешно загруженно.\nУкажите Ваш контактный номер телефона:'
+        text = 'Резюме успешно загруженно.\nУкажите Ваш контактный номер телефона в формате +7-***-***-**-**'
         context.user_data['Запрос анкетных данных'] = 'Номер телефона'
         keyboard = [
             ['Главное меню'],
@@ -391,7 +391,7 @@ async def user_form_information_process(update: Update, context: ContextTypes.DE
 
     elif next_step.__eq__('email'):
         logging.info(f'ТЕКУЩИЙ ШАГ {current_step} а текст сообщения {current_text}')
-        text = 'Ваш электронный адрес:'
+        text = 'Ваш электронный адрес:\n(Пример: ivanov.ivan@mail.ru)'
         keyboard = [
         ['Главное меню'],
         ]
@@ -428,6 +428,7 @@ async def user_form_information_process(update: Update, context: ContextTypes.DE
         ['Высшее образование'],
         ['Среднее профессиональное'],
         ['Школьное'],
+        ['Другое']
 
     ]
         reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
