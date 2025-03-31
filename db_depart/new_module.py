@@ -94,6 +94,7 @@ async def get_vacancies_by_keys_list_module(key_words_list):
             vacancy_req = vac.vacancy_inf['Требования'].lower()
             vacancy_resp = vac.vacancy_inf['Обязанности'].lower()
 
+
             if key_word in (vacancy_name or vacancy_req or vacancy_resp):
                 result_list.append(vac)
 
