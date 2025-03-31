@@ -69,9 +69,9 @@ async def get_vacancies_by_key_word_module(key_word):
     results = await database.fetch_all(query)
     for vac in results:
         
-        vacancy_name = vac.vacancy_inf['Вакансия']
-        vacancy_req = vac.vacancy_inf['Требования']
-        vacancy_resp = vac.vacancy_inf['Обязанности']
+        vacancy_name = vac.vacancy_inf['Вакансия'].lower()
+        vacancy_req = vac.vacancy_inf['Требования'].lower()
+        vacancy_resp = vac.vacancy_inf['Обязанности'].lower()
 
         if key_word in (vacancy_name or vacancy_req or vacancy_resp):
             result_list.append(vac)
@@ -90,9 +90,9 @@ async def get_vacancies_by_keys_list_module(key_words_list):
     for vac in results:
         for key_word in key_words_list:
         
-            vacancy_name = vac.vacancy_inf['Вакансия']
-            vacancy_req = vac.vacancy_inf['Требования']
-            vacancy_resp = vac.vacancy_inf['Обязанности']
+            vacancy_name = vac.vacancy_inf['Вакансия'].lower()
+            vacancy_req = vac.vacancy_inf['Требования'].lower()
+            vacancy_resp = vac.vacancy_inf['Обязанности'].lower()
 
             if key_word in (vacancy_name or vacancy_req or vacancy_resp):
                 result_list.append(vac)
