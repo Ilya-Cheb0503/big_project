@@ -78,10 +78,10 @@ async def get_vacancies_by_key_word_module(key_word, user_region):
     for vac in results:
         
         vacancy_region_name = vac.region_name
-        vacancy_name = vac.vacancy_inf['Вакансия']
-        vacancy_req = vac.vacancy_inf['Требования']
-        vacancy_resp = vac.vacancy_inf['Обязанности']
-        vacancy_cond = vac.vacancy_inf["Условия"]
+        vacancy_name = vac.vacancy_inf['Вакансия'].lower()
+        vacancy_req = vac.vacancy_inf['Требования'].lower()
+        vacancy_resp = vac.vacancy_inf['Обязанности'].lower()
+        vacancy_cond = vac.vacancy_inf["Условия"].lower()
 
         if key_word in (vacancy_name or vacancy_req or vacancy_resp or vacancy_cond) and vacancy_region_name == select_region_name:
             result_list.append(vac)
@@ -101,14 +101,14 @@ async def get_vacancies_by_keys_list_module(key_words_list, user_region):
     result_list = []
     results = await database.fetch_all(query)
     for vac in results:
+
         for key_word in key_words_list:
         
             vacancy_region_name = vac.region_name
-            vacancy_name = vac.vacancy_inf['Вакансия']
-            vacancy_req = vac.vacancy_inf['Требования']
-            vacancy_resp = vac.vacancy_inf['Обязанности']
-            vacancy_cond = vac.vacancy_inf["Условия"]
-
+            vacancy_name = vac.vacancy_inf['Вакансия'].lower()
+            vacancy_req = vac.vacancy_inf['Требования'].lower()
+            vacancy_resp = vac.vacancy_inf['Обязанности'].lower()
+            vacancy_cond = vac.vacancy_inf["Условия"].lower()
             if key_word in (vacancy_name or vacancy_req or vacancy_resp or vacancy_cond) and vacancy_region_name == select_region_name:
                 result_list.append(vac)
 
@@ -147,7 +147,6 @@ async def get_all_vacancies_module(user_region):
     # Добавить функцию чтения названия региона из карточки пользователя
 
     for vac in results:
-        
         vacancy_region_name = vac.region_name
 
         if vacancy_region_name == select_region_name:
