@@ -3,7 +3,7 @@ import re
 from settings import logging
 
 
-async def old_message_creater(vacancy):
+async def message_creater(vacancy):
     for key, value in vacancy.items():
 
         if type(value) == list:
@@ -65,7 +65,7 @@ async def old_message_creater(vacancy):
     f'💰 <u><b>Оплата</b></u>:\n'
     f'{min_max_salary_str}\n'
 
-    f'📋 <u><b>Требования</b></u>:{req_text}\n'
+    f'📋 <u><b>Требования</b></u>: {req_text}\n'
 
     f'⚙️ <u><b>Обязанности</b></u>: {resp_text}\n'
 
@@ -141,38 +141,3 @@ async def inf_taker(full_information):
         tight_information.append(new_vac)
         
     return tight_information
-
-
-
-
-async def message_creater(vacancy):
-
-
-    vacancy_name = vacancy["Вакансия"]
-    resp_text = vacancy["Обязанности"] 
-    req_text = vacancy["Требования"] 
-    cond_text = vacancy["Условия"]
-
-    value_defolt_text = 'Размер заработной платы, условия премирования обсуждаются на собеседовании.'
-
-    vacancy_text = (
-    f'<b>Вакансия: {vacancy_name}</b>\n\n'
-
-    f'📋 <u><b>Обязанности</b></u>:\n{resp_text}\n\n'
-
-    f'🎓 <u><b>Требования</b></u>:\n{req_text}\n\n'
-
-    # f'🤝🏻 <u><b>Условия</b></u>:\n{cond_text}\n\n'
-
-    f'💰 <u><b>Оплата</b></u>:\n'
-    f'{value_defolt_text}\n\n'
-
-
-    # f'🔗 <a href="{vacancy_url}">Ссылка на вакансию</a>\n\n'
-
-    # 'Присоединяйтесь к нашей команде и станьте частью\nдинамичной сферы энергетики! 💡✨'
-    )
-
-    return vacancy_text
-
-

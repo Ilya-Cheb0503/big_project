@@ -78,20 +78,6 @@ async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
 
     elif buttons_calling_data.__eq__('duty_vacancies'):
         await get_vacancies_by_key_word(update, context, key_word='Стажер', user_region=user_region)
-    
-    # elif buttons_calling_data.__eq__('show_all'):
-    #     current_count = await get_vacancy_count()
-    #     warning_text = (
-    #     '📢Внимание!\n\n'
-    #     f'Количество актуальных вакансий: {current_count}\n\n'
-    #     'Выгрузка может занять длительное время и составить большой объем.\nПодтвердите, что вы хотите просмотреть все вакансии.')
-    #     keyboard = [
-    #         [InlineKeyboardButton(text = 'Да, я готов 🔍', callback_data = 'risk')],
-    #         [InlineKeyboardButton(text = 'Назад', callback_data = 'vacancies')]
-    #     ]
-    #     reply_markup = InlineKeyboardMarkup(keyboard)
-    #     await query.edit_message_text(text=warning_text, reply_markup=reply_markup)
-
 
     elif buttons_calling_data.__eq__('show_all'):
         await get_all_company_vacancies(update, context, user_region)
@@ -164,7 +150,6 @@ async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
 
         await context.bot.send_message(chat_id=group_id, text=user_send_req_text)
 
-        # Создаем новую кнопку с URL
         keyboard = [
         [
             InlineKeyboardButton("Откликнуться", callback_data=f'tq;{int_id}')
@@ -242,14 +227,22 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
     elif 'Запрос анкетных данных' in context.user_data:
         await user_form_information_process(update, context)
 
-    # elif current_text.lower().__eq__('без опыта'):
-    #     logging.info('БЕЗ ОПЫТА')
-    #     await get_no_exp_vacancies(update, context)
+    elif current_text.lower().__eq__('без опыта'):
+        logging.info('БЕЗ ОПЫТА')
+        await get_no_exp_vacancies(update, context)
     else:
         user = await get_user_from_db(user_id)
         if 'Регион поиска' in user['user_inf']:
             user_region = user['user_inf']['Регион поиска']
-            await get_vacancies_by_key_word(update, context, current_text, user_region)
+
+            # 1. Создать словарь, в котором будут хранится ключи и вакансии к ним
+            if current_text in 'some_list_with_keys':
+                pass
+                # 2. Обращаться к этому словарю с ключем и получать пакет ключей для запросы, после чего отправлять его в функцию получения вакансий по списку ключей
+                pack_of_keys = 'keys_vocabular'[current_text]
+                await get_vacancies_by_keys_list(update, context, pack_of_keys, user_region)
+            else:
+                await get_vacancies_by_key_word(update, context, current_text, user_region)
         else:
             message_text, buttons_set = but_opt['region']
 
